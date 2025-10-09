@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
     return NextResponse.json({
       ticketId: data.ticket.id,
+      requesterId: data.ticket.requester_id,
       ticket: data.ticket,
     })
   } catch (error) {

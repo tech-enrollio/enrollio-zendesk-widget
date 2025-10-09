@@ -118,6 +118,7 @@ export default function EnrollioSupportWidget() {
   const [chatEmail, setChatEmail] = useState("")
   const [isChatStarted, setIsChatStarted] = useState(false)
   const [ticketId, setTicketId] = useState<string | null>(null)
+  const [requesterId, setRequesterId] = useState<number | null>(null)
   const [isSendingMessage, setIsSendingMessage] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
 
@@ -428,7 +429,7 @@ export default function EnrollioSupportWidget() {
 
   // Poll for new messages from agents
   useEffect(() => {
-    if (!ticketId || !isChatStarted) return
+    if (!ticketId || !isChatStarted || !requesterId) return
 
     const pollMessages = async () => {
       try {
@@ -440,9 +441,10 @@ export default function EnrollioSupportWidget() {
         const comments: ZendeskComment[] = data.comments || []
 
         // Convert Zendesk comments to messages
+        // Compare author_id with requesterId to determine if it's from the user or agent
         const formattedMessages: Message[] = comments.map((comment) => ({
           id: comment.id.toString(),
-          sender: comment.author_id === parseInt(ticketId) ? "user" : "agent",
+          sender: comment.author_id === requesterId ? "user" : "agent",
           content: comment.body,
           timestamp: new Date(comment.created_at).toLocaleTimeString([], {
             hour: "2-digit",
@@ -465,7 +467,7 @@ export default function EnrollioSupportWidget() {
     // Then poll every 5 seconds
     const interval = setInterval(pollMessages, 5000)
     return () => clearInterval(interval)
-  }, [ticketId, isChatStarted])
+  }, [ticketId, isChatStarted, requesterId])
 
   const handleStartChat = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -487,6 +489,7 @@ export default function EnrollioSupportWidget() {
 
       const data = await response.json()
       setTicketId(data.ticketId)
+      setRequesterId(data.requesterId)
       setIsChatStarted(true)
 
       // Add user message to chat

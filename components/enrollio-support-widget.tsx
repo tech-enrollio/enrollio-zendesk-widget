@@ -66,6 +66,16 @@ interface RoadmapItem {
   votes: number
 }
 
+interface HelpArticle {
+  id: number
+  title: string
+  body: string
+  snippet: string
+  url: string
+  created_at: string
+  updated_at: string
+}
+
 export default function EnrollioSupportWidget() {
   const [isOpen, setIsOpen] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
@@ -88,6 +98,10 @@ export default function EnrollioSupportWidget() {
   const [isLoadingMoreRoadmap, setIsLoadingMoreRoadmap] = useState(false)
   const [featuresError, setFeaturesError] = useState<string | null>(null)
   const [roadmapError, setRoadmapError] = useState<string | null>(null)
+  const [helpArticles, setHelpArticles] = useState<HelpArticle[]>([])
+  const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(null)
+  const [isSearchingHelp, setIsSearchingHelp] = useState(false)
+  const [helpSearchError, setHelpSearchError] = useState<string | null>(null)
 
   const newsObserverRef = useRef<IntersectionObserver | null>(null)
   const roadmapObserverRef = useRef<IntersectionObserver | null>(null)
@@ -365,6 +379,43 @@ export default function EnrollioSupportWidget() {
       if (roadmapObserverRef.current) roadmapObserverRef.current.disconnect()
     }
   }, [loadMoreRoadmap])
+
+  // Search help center articles with debouncing
+  useEffect(() => {
+    const searchHelpArticles = async (query: string) => {
+      if (!query.trim()) {
+        setHelpArticles([])
+        setHelpSearchError(null)
+        return
+      }
+
+      setIsSearchingHelp(true)
+      setHelpSearchError(null)
+
+      try {
+        const response = await fetch(`/api/help-center?query=${encodeURIComponent(query)}`)
+        if (!response.ok) {
+          throw new Error("Failed to search help articles")
+        }
+
+        const data = await response.json()
+        setHelpArticles(data.results || [])
+      } catch (error) {
+        console.error("Error searching help articles:", error)
+        setHelpSearchError("Unable to search help articles")
+        setHelpArticles([])
+      } finally {
+        setIsSearchingHelp(false)
+      }
+    }
+
+    // Debounce search
+    const timeoutId = setTimeout(() => {
+      searchHelpArticles(searchQuery)
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -957,47 +1008,127 @@ export default function EnrollioSupportWidget() {
                       transition={{ duration: 0.3 }}
                       className="space-y-4"
                     >
-                      <div>
-                        <h3 className="text-lg font-semibold mb-1" style={{ color: "#000814" }}>
-                          Help Center 🔍
-                        </h3>
-                        <p className="text-sm text-gray-600">Find answers and tutorials</p>
-                      </div>
+                      {/* Article view */}
+                      {selectedArticle ? (
+                        <>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedArticle(null)}
+                              className="text-gray-500 hover:text-[#000814] -ml-2"
+                            >
+                              <ArrowLeft className="h-4 w-4 mr-1" />
+                              Back to results
+                            </Button>
+                          </div>
+                          <div className="space-y-3">
+                            <h3 className="text-lg font-semibold leading-tight" style={{ color: "#000814" }}>
+                              {selectedArticle.title}
+                            </h3>
+                            <div
+                              className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none"
+                              dangerouslySetInnerHTML={{ __html: selectedArticle.body }}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <h3 className="text-lg font-semibold mb-1" style={{ color: "#000814" }}>
+                              Help Center 🔍
+                            </h3>
+                            <p className="text-sm text-gray-600">Find answers and tutorials</p>
+                          </div>
 
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                          placeholder="Search tutorials, FAQs, or setup guides..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
-                        />
-                      </div>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                              placeholder="Search tutorials, FAQs, or setup guides..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-10 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
+                            />
+                          </div>
 
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Popular Topics</h4>
-                        {helpLinks.map((link, index) => (
-                          <motion.button
-                            key={index}
-                            whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="text-xl">{link.icon}</span>
-                              <span className="text-sm font-medium" style={{ color: "#000814" }}>
-                                {link.title}
-                              </span>
-                              <ExternalLink className="h-4 w-4 text-gray-400 ml-auto" />
+                          {/* Search results */}
+                          {searchQuery.trim() ? (
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                                Search Results
+                              </h4>
+                              {isSearchingHelp ? (
+                                <div className="flex items-center justify-center py-8">
+                                  <div className="text-center space-y-3">
+                                    <div className="h-6 w-6 mx-auto border-3 border-gray-200 border-t-[#FFC300] rounded-full animate-spin" />
+                                    <p className="text-sm text-gray-500">Searching...</p>
+                                  </div>
+                                </div>
+                              ) : helpSearchError ? (
+                                <div className="text-center py-8">
+                                  <p className="text-sm text-gray-600">{helpSearchError}</p>
+                                </div>
+                              ) : helpArticles.length === 0 ? (
+                                <div className="text-center py-8">
+                                  <p className="text-sm text-gray-600">No articles found for "{searchQuery}"</p>
+                                  <p className="text-xs text-gray-500 mt-2">Try different keywords or browse popular topics below</p>
+                                </div>
+                              ) : (
+                                helpArticles.map((article, index) => (
+                                  <motion.button
+                                    key={article.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    onClick={() => setSelectedArticle(article)}
+                                    whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
+                                  >
+                                    <div className="space-y-1">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <span className="text-sm font-semibold" style={{ color: "#000814" }}>
+                                          {article.title}
+                                        </span>
+                                        <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                      </div>
+                                      {article.snippet && (
+                                        <p className="text-xs text-gray-600 line-clamp-2">{article.snippet}</p>
+                                      )}
+                                    </div>
+                                  </motion.button>
+                                ))
+                              )}
                             </div>
-                          </motion.button>
-                        ))}
-                      </div>
+                          ) : (
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                                Popular Topics
+                              </h4>
+                              {helpLinks.map((link, index) => (
+                                <motion.button
+                                  key={index}
+                                  whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
+                                  whileTap={{ scale: 0.98 }}
+                                  className="w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-xl">{link.icon}</span>
+                                    <span className="text-sm font-medium" style={{ color: "#000814" }}>
+                                      {link.title}
+                                    </span>
+                                    <ExternalLink className="h-4 w-4 text-gray-400 ml-auto" />
+                                  </div>
+                                </motion.button>
+                              ))}
+                            </div>
+                          )}
 
-                      <p className="text-xs text-center text-gray-500 pt-2">
-                        {/* TODO: Auto-open Zendesk Help articles in-widget */}
-                        Can't find what you're looking for? Chat with us!
-                      </p>
+                          <p className="text-xs text-center text-gray-500 pt-2">
+                            Can't find what you're looking for? Chat with us!
+                          </p>
+                        </>
+                      )}
                     </motion.div>
                   )}
                 </div>

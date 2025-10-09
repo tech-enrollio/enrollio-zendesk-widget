@@ -32,9 +32,18 @@ type TabType = "home" | "chat" | "news" | "roadmap" | "requests" | "help"
 
 interface Message {
   id: string
-  sender: "user" | "agent" | "ai"
+  sender: "user" | "agent"
   content: string
   timestamp: string
+  author_id?: number
+}
+
+interface ZendeskComment {
+  id: number
+  body: string
+  author_id: number
+  created_at: string
+  public: boolean
 }
 
 interface NewsItem {
@@ -103,21 +112,21 @@ export default function EnrollioSupportWidget() {
   const [isSearchingHelp, setIsSearchingHelp] = useState(false)
   const [helpSearchError, setHelpSearchError] = useState<string | null>(null)
 
+  // Chat state
+  const [chatMessages, setChatMessages] = useState<Message[]>([])
+  const [chatName, setChatName] = useState("")
+  const [chatEmail, setChatEmail] = useState("")
+  const [isChatStarted, setIsChatStarted] = useState(false)
+  const [ticketId, setTicketId] = useState<string | null>(null)
+  const [isSendingMessage, setIsSendingMessage] = useState(false)
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+
   const newsObserverRef = useRef<IntersectionObserver | null>(null)
   const roadmapObserverRef = useRef<IntersectionObserver | null>(null)
   const newsLoadMoreRef = useRef<HTMLDivElement>(null)
   const roadmapLoadMoreRef = useRef<HTMLDivElement>(null)
 
-  // Mock data
-  const messages: Message[] = [
-    {
-      id: "1",
-      sender: "agent",
-      content: "Hi! Welcome to Enrollio Support. How can we help you today?",
-      timestamp: "10:30 AM",
-    },
-  ]
-
+  // Mock data for news items (not used anymore)
   const newsItems: NewsItem[] = [
     {
       id: "1",
@@ -417,11 +426,121 @@ export default function EnrollioSupportWidget() {
     return () => clearTimeout(timeoutId)
   }, [searchQuery])
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      // TODO: Connect to Zendesk Messaging API
-      console.log("Sending message:", message)
+  // Poll for new messages from agents
+  useEffect(() => {
+    if (!ticketId || !isChatStarted) return
+
+    const pollMessages = async () => {
+      try {
+        setIsLoadingMessages(true)
+        const response = await fetch(`/api/chat/get-messages?ticketId=${ticketId}`)
+        if (!response.ok) throw new Error("Failed to fetch messages")
+
+        const data = await response.json()
+        const comments: ZendeskComment[] = data.comments || []
+
+        // Convert Zendesk comments to messages
+        const formattedMessages: Message[] = comments.map((comment) => ({
+          id: comment.id.toString(),
+          sender: comment.author_id === parseInt(ticketId) ? "user" : "agent",
+          content: comment.body,
+          timestamp: new Date(comment.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          author_id: comment.author_id,
+        }))
+
+        setChatMessages(formattedMessages)
+      } catch (error) {
+        console.error("Error polling messages:", error)
+      } finally {
+        setIsLoadingMessages(false)
+      }
+    }
+
+    // Poll immediately
+    pollMessages()
+
+    // Then poll every 5 seconds
+    const interval = setInterval(pollMessages, 5000)
+    return () => clearInterval(interval)
+  }, [ticketId, isChatStarted])
+
+  const handleStartChat = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!chatName.trim() || !chatEmail.trim() || !message.trim()) return
+
+    setIsSendingMessage(true)
+    try {
+      const response = await fetch("/api/chat/create-ticket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: chatName,
+          email: chatEmail,
+          message: message,
+        }),
+      })
+
+      if (!response.ok) throw new Error("Failed to create ticket")
+
+      const data = await response.json()
+      setTicketId(data.ticketId)
+      setIsChatStarted(true)
+
+      // Add user message to chat
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        sender: "user",
+        content: message,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      }
+      setChatMessages([newMessage])
       setMessage("")
+    } catch (error) {
+      console.error("Error starting chat:", error)
+      alert("Failed to start chat. Please try again.")
+    } finally {
+      setIsSendingMessage(false)
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!message.trim() || !ticketId) return
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      sender: "user",
+      content: message,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    }
+
+    // Optimistically add message to UI
+    setChatMessages((prev) => [...prev, userMessage])
+    const messageToSend = message
+    setMessage("")
+
+    setIsSendingMessage(true)
+    try {
+      const response = await fetch("/api/chat/send-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketId: ticketId,
+          message: messageToSend,
+        }),
+      })
+
+      if (!response.ok) throw new Error("Failed to send message")
+    } catch (error) {
+      console.error("Error sending message:", error)
+      // Remove optimistic message on error
+      setChatMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id))
+      setMessage(messageToSend) // Restore message
+      alert("Failed to send message. Please try again.")
+    } finally {
+      setIsSendingMessage(false)
     }
   }
 
@@ -601,57 +720,136 @@ export default function EnrollioSupportWidget() {
                         <p className="text-sm text-gray-600">We're here to help you 7 days a week.</p>
                       </div>
 
-                      <div className="space-y-3">
-                        {messages.map((msg) => (
-                          <div key={msg.id} className="flex gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                              <AvatarFallback style={{ backgroundColor: "#FFC300", color: "#000814" }}>
-                                {msg.sender === "user" ? "U" : msg.sender === "ai" ? "AI" : "A"}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div
-                                className="rounded-lg p-3 text-sm"
-                                style={{
-                                  backgroundColor: msg.sender === "user" ? "#FFC300" : "#F3F4F6",
-                                  color: "#000814",
-                                }}
-                              >
-                                {msg.content}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">{msg.timestamp}</div>
-                            </div>
+                      {!isChatStarted ? (
+                        /* Chat start form */
+                        <form onSubmit={handleStartChat} className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium" style={{ color: "#000814" }}>
+                              Name
+                            </label>
+                            <Input
+                              placeholder="Your name"
+                              value={chatName}
+                              onChange={(e) => setChatName(e.target.value)}
+                              required
+                              className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
+                            />
                           </div>
-                        ))}
-                      </div>
 
-                      <div className="space-y-2 pt-4">
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Type your message..."
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                            className="flex-1 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
-                          />
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium" style={{ color: "#000814" }}>
+                              Email
+                            </label>
+                            <Input
+                              type="email"
+                              placeholder="your@email.com"
+                              value={chatEmail}
+                              onChange={(e) => setChatEmail(e.target.value)}
+                              required
+                              className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium" style={{ color: "#000814" }}>
+                              How can we help you?
+                            </label>
+                            <Textarea
+                              placeholder="Describe your question or issue..."
+                              value={message}
+                              onChange={(e) => setMessage(e.target.value)}
+                              required
+                              rows={4}
+                              className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300] resize-none"
+                            />
+                          </div>
+
                           <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-gray-500 hover:text-black hover:bg-gray-100 transition-all"
+                            type="submit"
+                            disabled={isSendingMessage}
+                            className="w-full font-semibold transition-all hover:shadow-[0_0_20px_rgba(255,195,0,0.5)]"
+                            style={{ backgroundColor: "#FFC300", color: "#000814" }}
                           >
-                            <Paperclip className="h-4 w-4" />
+                            {isSendingMessage ? (
+                              <>
+                                <div className="h-4 w-4 mr-2 border-2 border-[#000814] border-t-transparent rounded-full animate-spin" />
+                                Starting Chat...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="h-4 w-4 mr-2" />
+                                Start Chat
+                              </>
+                            )}
                           </Button>
-                        </div>
-                        <Button
-                          onClick={handleSendMessage}
-                          className="w-full font-semibold transition-all hover:shadow-[0_0_20px_rgba(255,195,0,0.5)]"
-                          style={{ backgroundColor: "#FFC300", color: "#000814" }}
-                        >
-                          <Send className="h-4 w-4 mr-2" />
-                          Send Message
-                        </Button>
-                      </div>
+                        </form>
+                      ) : (
+                        /* Chat messages and input */
+                        <>
+                          <div className="space-y-3 min-h-[200px] max-h-[280px] overflow-y-auto">
+                            {chatMessages.length === 0 ? (
+                              <div className="text-center py-8">
+                                <p className="text-sm text-gray-500">Your message has been sent!</p>
+                                <p className="text-xs text-gray-400 mt-1">An agent will respond shortly.</p>
+                              </div>
+                            ) : (
+                              chatMessages.map((msg) => (
+                                <div key={msg.id} className="flex gap-3">
+                                  <Avatar className="h-8 w-8 flex-shrink-0">
+                                    <AvatarFallback
+                                      style={{
+                                        backgroundColor: msg.sender === "user" ? "#FFC300" : "#000814",
+                                        color: msg.sender === "user" ? "#000814" : "#FFC300",
+                                      }}
+                                    >
+                                      {msg.sender === "user" ? "U" : "A"}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1">
+                                    <div
+                                      className="rounded-lg p-3 text-sm"
+                                      style={{
+                                        backgroundColor: msg.sender === "user" ? "#FFC300" : "#F3F4F6",
+                                        color: "#000814",
+                                      }}
+                                    >
+                                      {msg.content}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">{msg.timestamp}</div>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                            {isLoadingMessages && chatMessages.length > 0 && (
+                              <div className="text-center">
+                                <div className="inline-block h-4 w-4 border-2 border-gray-300 border-t-[#FFC300] rounded-full animate-spin" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-2 pt-4 border-t border-gray-100">
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Type your message..."
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
+                                disabled={isSendingMessage}
+                                className="flex-1 bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
+                              />
+                            </div>
+                            <Button
+                              onClick={handleSendMessage}
+                              disabled={isSendingMessage || !message.trim()}
+                              className="w-full font-semibold transition-all hover:shadow-[0_0_20px_rgba(255,195,0,0.5)]"
+                              style={{ backgroundColor: "#FFC300", color: "#000814" }}
+                            >
+                              <Send className="h-4 w-4 mr-2" />
+                              {isSendingMessage ? "Sending..." : "Send Message"}
+                            </Button>
+                          </div>
+                        </>
+                      )}
                     </motion.div>
                   )}
 

@@ -85,6 +85,17 @@ interface HelpArticle {
   updated_at: string
 }
 
+interface ChatSession {
+  ticketId: string
+  requesterId: number
+  name: string
+  email: string
+  subject: string
+  status: string
+  created_at: string
+  updated_at: string
+}
+
 export default function EnrollioSupportWidget() {
   const [isOpen, setIsOpen] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
@@ -121,6 +132,10 @@ export default function EnrollioSupportWidget() {
   const [requesterId, setRequesterId] = useState<number | null>(null)
   const [isSendingMessage, setIsSendingMessage] = useState(false)
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const [previousChats, setPreviousChats] = useState<ChatSession[]>([])
+  const [showEmailLookup, setShowEmailLookup] = useState(false)
+  const [lookupEmail, setLookupEmail] = useState("")
+  const [isLoadingChats, setIsLoadingChats] = useState(false)
 
   const newsObserverRef = useRef<IntersectionObserver | null>(null)
   const roadmapObserverRef = useRef<IntersectionObserver | null>(null)
@@ -234,6 +249,94 @@ export default function EnrollioSupportWidget() {
       INTEGRATIONS: "🔌",
     }
     return emojiMap[productArea] || "✨"
+  }
+
+  // Load previous chats from localStorage on mount
+  useEffect(() => {
+    const loadLocalChats = () => {
+      try {
+        const stored = localStorage.getItem("enrollio_chat_sessions")
+        if (stored) {
+          const sessions: ChatSession[] = JSON.parse(stored)
+          // Sort by most recent first
+          sessions.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+          setPreviousChats(sessions.slice(0, 5)) // Show max 5 recent chats
+        }
+      } catch (error) {
+        console.error("Error loading chats from localStorage:", error)
+      }
+    }
+
+    loadLocalChats()
+  }, [])
+
+  // Save chat session to localStorage
+  const saveChatToLocal = (session: ChatSession) => {
+    try {
+      const stored = localStorage.getItem("enrollio_chat_sessions")
+      const sessions: ChatSession[] = stored ? JSON.parse(stored) : []
+
+      // Check if session already exists, update it
+      const existingIndex = sessions.findIndex((s) => s.ticketId === session.ticketId)
+      if (existingIndex >= 0) {
+        sessions[existingIndex] = session
+      } else {
+        sessions.unshift(session) // Add to beginning
+      }
+
+      // Keep only last 10 sessions
+      const recentSessions = sessions.slice(0, 10)
+      localStorage.setItem("enrollio_chat_sessions", JSON.stringify(recentSessions))
+
+      // Update state
+      setPreviousChats(recentSessions.slice(0, 5))
+    } catch (error) {
+      console.error("Error saving chat to localStorage:", error)
+    }
+  }
+
+  // Load chats by email from Zendesk
+  const loadChatsByEmail = async (email: string) => {
+    setIsLoadingChats(true)
+    try {
+      const response = await fetch(`/api/chat/get-user-tickets?email=${encodeURIComponent(email)}`)
+      if (!response.ok) throw new Error("Failed to fetch tickets")
+
+      const data = await response.json()
+      const tickets = data.tickets || []
+
+      const sessions: ChatSession[] = tickets.map((ticket: any) => ({
+        ticketId: ticket.id.toString(),
+        requesterId: ticket.requester_id,
+        name: ticket.requester?.name || "Unknown",
+        email: email,
+        subject: ticket.subject,
+        status: ticket.status,
+        created_at: ticket.created_at,
+        updated_at: ticket.updated_at,
+      }))
+
+      setPreviousChats(sessions)
+
+      // Also save to localStorage
+      sessions.forEach((session) => saveChatToLocal(session))
+    } catch (error) {
+      console.error("Error loading chats by email:", error)
+      alert("Failed to load chats. Please try again.")
+    } finally {
+      setIsLoadingChats(false)
+      setShowEmailLookup(false)
+    }
+  }
+
+  // Resume an existing chat
+  const resumeChat = (session: ChatSession) => {
+    setTicketId(session.ticketId)
+    setRequesterId(session.requesterId)
+    setChatName(session.name)
+    setChatEmail(session.email)
+    setIsChatStarted(true)
+    setChatMessages([]) // Will be loaded by polling
   }
 
   // Fetch latest features from API
@@ -492,6 +595,19 @@ export default function EnrollioSupportWidget() {
       setRequesterId(data.requesterId)
       setIsChatStarted(true)
 
+      // Save chat session to localStorage
+      const newSession: ChatSession = {
+        ticketId: data.ticketId,
+        requesterId: data.requesterId,
+        name: chatName,
+        email: chatEmail,
+        subject: `Chat from ${chatName}`,
+        status: "open",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      saveChatToLocal(newSession)
+
       // Add user message to chat
       const newMessage: Message = {
         id: Date.now().toString(),
@@ -724,8 +840,111 @@ export default function EnrollioSupportWidget() {
                       </div>
 
                       {!isChatStarted ? (
-                        /* Chat start form */
-                        <form onSubmit={handleStartChat} className="space-y-4">
+                        <>
+                          {/* Previous Chats List */}
+                          {previousChats.length > 0 && (
+                            <div className="space-y-3 mb-4">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-semibold text-gray-600">Recent Chats</h4>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setShowEmailLookup(true)}
+                                  className="text-xs text-[#FFC300] hover:text-[#000814] hover:bg-gray-100"
+                                >
+                                  Load by email
+                                </Button>
+                              </div>
+
+                              <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                                {previousChats.map((chat) => (
+                                  <motion.button
+                                    key={chat.ticketId}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => resumeChat(chat)}
+                                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-[#FFC300] transition-all text-left bg-white"
+                                  >
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <p className="text-sm font-semibold text-[#000814] truncate">{chat.subject}</p>
+                                          <Badge
+                                            variant="secondary"
+                                            className="text-xs flex-shrink-0"
+                                            style={{
+                                              backgroundColor:
+                                                chat.status === "open"
+                                                  ? "#FFC300"
+                                                  : chat.status === "pending"
+                                                    ? "#FFD60A"
+                                                    : "#F3F4F6",
+                                              color: chat.status === "solved" ? "#6B7280" : "#000814",
+                                            }}
+                                          >
+                                            {chat.status}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                          {new Date(chat.updated_at).toLocaleDateString()} •{" "}
+                                          {new Date(chat.updated_at).toLocaleTimeString([], {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                          })}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </motion.button>
+                                ))}
+                              </div>
+
+                              <div className="border-t border-gray-200 pt-3">
+                                <p className="text-xs text-center text-gray-500 mb-3">Or start a new conversation</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Email Lookup Modal */}
+                          {showEmailLookup && (
+                            <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-semibold text-[#000814]">Load Chats by Email</h4>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setShowEmailLookup(false)}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <Input
+                                type="email"
+                                placeholder="Enter your email"
+                                value={lookupEmail}
+                                onChange={(e) => setLookupEmail(e.target.value)}
+                                className="bg-white"
+                              />
+                              <Button
+                                onClick={() => loadChatsByEmail(lookupEmail)}
+                                disabled={!lookupEmail.trim() || isLoadingChats}
+                                className="w-full"
+                                style={{ backgroundColor: "#FFC300", color: "#000814" }}
+                              >
+                                {isLoadingChats ? (
+                                  <>
+                                    <div className="h-4 w-4 mr-2 border-2 border-[#000814] border-t-transparent rounded-full animate-spin" />
+                                    Loading...
+                                  </>
+                                ) : (
+                                  "Load My Chats"
+                                )}
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Chat start form */}
+                          <form onSubmit={handleStartChat} className="space-y-4">
                           <div className="space-y-2">
                             <label className="text-sm font-medium" style={{ color: "#000814" }}>
                               Name
@@ -786,6 +1005,7 @@ export default function EnrollioSupportWidget() {
                             )}
                           </Button>
                         </form>
+                      </>
                       ) : (
                         /* Chat messages and input */
                         <>

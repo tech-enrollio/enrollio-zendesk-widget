@@ -1011,7 +1011,7 @@ export default function EnrollioSupportWidget() {
                       {/* Article view */}
                       {selectedArticle ? (
                         <>
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-3">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -1022,12 +1022,12 @@ export default function EnrollioSupportWidget() {
                               Back to results
                             </Button>
                           </div>
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             <h3 className="text-lg font-semibold leading-tight" style={{ color: "#000814" }}>
                               {selectedArticle.title}
                             </h3>
                             <div
-                              className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none"
+                              className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none [&_p]:mb-3 [&_ul]:mb-3 [&_ol]:mb-3 [&_li]:mb-1 [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:mt-3 [&_h3]:mb-2 [&_strong]:font-semibold [&_em]:font-medium"
                               dangerouslySetInnerHTML={{ __html: selectedArticle.body }}
                             />
                           </div>
@@ -1083,17 +1083,22 @@ export default function EnrollioSupportWidget() {
                                     onClick={() => setSelectedArticle(article)}
                                     whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
+                                    className="w-full p-4 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
                                   >
-                                    <div className="space-y-1">
-                                      <div className="flex items-start justify-between gap-2">
-                                        <span className="text-sm font-semibold" style={{ color: "#000814" }}>
+                                    <div className="space-y-2">
+                                      <div className="flex items-start justify-between gap-3">
+                                        <span className="text-sm font-semibold leading-snug" style={{ color: "#000814" }}>
                                           {article.title}
                                         </span>
-                                        <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                        <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
                                       </div>
                                       {article.snippet && (
-                                        <p className="text-xs text-gray-600 line-clamp-2">{article.snippet}</p>
+                                        <div
+                                          className="text-xs text-gray-600 line-clamp-2 leading-relaxed"
+                                          dangerouslySetInnerHTML={{
+                                            __html: article.snippet.replace(/<em>/g, '<em class="font-medium">'),
+                                          }}
+                                        />
                                       )}
                                     </div>
                                   </motion.button>

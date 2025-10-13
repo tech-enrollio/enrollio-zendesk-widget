@@ -679,19 +679,27 @@ export default function EnrollioSupportWidget() {
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0)
 
-      const response = await fetch("https://feedback.enrollio.ai/api/boards/crm/features", {
+      const endpoint = "https://feedback.enrollio.ai/api/boards/crm/features"
+      const payload = {
+        title: featureTitle,
+        description: featureDescription,
+        productArea: featureProductArea,
+        tags: tagsArray,
+        authorName: featureName,
+        authorEmail: featureEmail,
+      }
+
+      // Log submission details
+      console.log("Feature Request Submission:")
+      console.log("Endpoint:", endpoint)
+      console.log("Payload:", payload)
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title: featureTitle,
-          description: featureDescription,
-          productArea: featureProductArea,
-          tags: tagsArray,
-          authorName: featureName,
-          authorEmail: featureEmail,
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
@@ -1457,27 +1465,25 @@ export default function EnrollioSupportWidget() {
 
                             <div className="space-y-2">
                               <label className="text-sm font-medium" style={{ color: "#000814" }}>
-                                Name <span className="text-red-500">*</span>
+                                Name
                               </label>
                               <Input
                                 placeholder="Your name"
                                 value={featureName}
                                 onChange={(e) => setFeatureName(e.target.value)}
-                                required
                                 className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
                               />
                             </div>
 
                             <div className="space-y-2">
                               <label className="text-sm font-medium" style={{ color: "#000814" }}>
-                                Email <span className="text-red-500">*</span>
+                                Email
                               </label>
                               <Input
                                 type="email"
                                 placeholder="your@email.com"
                                 value={featureEmail}
                                 onChange={(e) => setFeatureEmail(e.target.value)}
-                                required
                                 className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
                               />
                             </div>

@@ -679,7 +679,6 @@ export default function EnrollioSupportWidget() {
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0)
 
-      const endpoint = "https://feedback.enrollio.ai/api/boards/crm/features"
       const payload = {
         title: featureTitle,
         description: featureDescription,
@@ -691,10 +690,10 @@ export default function EnrollioSupportWidget() {
 
       // Log submission details
       console.log("Feature Request Submission:")
-      console.log("Endpoint:", endpoint)
+      console.log("Endpoint:", "/api/features/submit (proxy to https://feedback.enrollio.ai/api/boards/crm/features)")
       console.log("Payload:", payload)
 
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/features/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

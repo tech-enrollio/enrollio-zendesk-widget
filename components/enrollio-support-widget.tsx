@@ -702,7 +702,22 @@ export default function EnrollioSupportWidget() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to submit feature request")
+        const errorData = await response.json()
+        console.error("API Error:", errorData)
+
+        // Extract error message
+        let errorMessage = "Failed to submit feature request."
+        if (errorData.details) {
+          if (typeof errorData.details === 'string') {
+            errorMessage += ` ${errorData.details}`
+          } else if (errorData.details.message) {
+            errorMessage += ` ${errorData.details.message}`
+          } else if (errorData.details.error) {
+            errorMessage += ` ${errorData.details.error}`
+          }
+        }
+
+        throw new Error(errorMessage)
       }
 
       // Show success message
@@ -718,7 +733,8 @@ export default function EnrollioSupportWidget() {
       }, 3000)
     } catch (error) {
       console.error("Error submitting feature request:", error)
-      alert("Failed to submit feature request. Please try again.")
+      const errorMessage = error instanceof Error ? error.message : "Failed to submit feature request. Please try again."
+      alert(errorMessage)
     } finally {
       setIsSubmittingFeature(false)
     }

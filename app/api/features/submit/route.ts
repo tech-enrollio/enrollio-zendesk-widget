@@ -4,23 +4,43 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    // Map "Class Registration" to "REGISTRATION" as required by the API
+    const mappedBody = {
+      ...body,
+      productArea: body.productArea === "Class Registration" ? "REGISTRATION" : body.productArea,
+    }
+
     // Log the request for debugging
     console.log("Proxying feature request to feedback API")
-    console.log("Payload:", body)
+    console.log("Original payload:", body)
+    console.log("Mapped payload:", mappedBody)
 
     const response = await fetch("https://feedback.enrollio.ai/api/boards/crm/features", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(mappedBody),
     })
 
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error("Feedback API error:", response.status, errorText)
+      let errorDetails
+      try {
+        // Try to parse JSON error response
+        errorDetails = await response.json()
+        console.error("Feedback API error:", response.status, errorDetails)
+      } catch {
+        // If not JSON, get text
+        errorDetails = await response.text()
+        console.error("Feedback API error:", response.status, errorDetails)
+      }
+
       return NextResponse.json(
-        { error: "Failed to submit feature request", details: errorText },
+        {
+          error: "Failed to submit feature request",
+          details: errorDetails,
+          status: response.status
+        },
         { status: response.status }
       )
     }
@@ -31,7 +51,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error proxying feature request:", error)
     return NextResponse.json(
-      { error: "Failed to submit feature request" },
+      { error: "Failed to submit feature request", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     )
   }

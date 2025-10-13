@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   MessageCircle,
   Newspaper,
@@ -103,9 +104,13 @@ export default function EnrollioSupportWidget() {
   const [message, setMessage] = useState("")
   const [featureName, setFeatureName] = useState("")
   const [featureEmail, setFeatureEmail] = useState("")
-  const [featureIdea, setFeatureIdea] = useState("")
+  const [featureTitle, setFeatureTitle] = useState("")
+  const [featureDescription, setFeatureDescription] = useState("")
+  const [featureProductArea, setFeatureProductArea] = useState<"CRM" | "Class Registration">("CRM")
+  const [featureTags, setFeatureTags] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmittingFeature, setIsSubmittingFeature] = useState(false)
   const [latestFeatures, setLatestFeatures] = useState<Feature[]>([])
   const [roadmapFeatures, setRoadmapFeatures] = useState<Feature[]>([])
   const [allLatestFeatures, setAllLatestFeatures] = useState<Feature[]>([])
@@ -663,17 +668,53 @@ export default function EnrollioSupportWidget() {
     }
   }
 
-  const handleFeatureSubmit = (e: React.FormEvent) => {
+  const handleFeatureSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Connect to Feedback Center API
-    console.log("Feature request:", { featureName, featureEmail, featureIdea })
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
-      setFeatureName("")
-      setFeatureEmail("")
-      setFeatureIdea("")
-    }, 3000)
+    setIsSubmittingFeature(true)
+
+    try {
+      // Parse tags from comma-separated string to array
+      const tagsArray = featureTags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0)
+
+      const response = await fetch("https://feedback.enrollio.ai/api/boards/crm/features", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: featureTitle,
+          description: featureDescription,
+          productArea: featureProductArea,
+          tags: tagsArray,
+          authorName: featureName,
+          authorEmail: featureEmail,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to submit feature request")
+      }
+
+      // Show success message
+      setSubmitted(true)
+      setTimeout(() => {
+        setSubmitted(false)
+        setFeatureName("")
+        setFeatureEmail("")
+        setFeatureTitle("")
+        setFeatureDescription("")
+        setFeatureProductArea("CRM")
+        setFeatureTags("")
+      }, 3000)
+    } catch (error) {
+      console.error("Error submitting feature request:", error)
+      alert("Failed to submit feature request. Please try again.")
+    } finally {
+      setIsSubmittingFeature(false)
+    }
   }
 
   if (!isOpen) return null
@@ -1357,11 +1398,66 @@ export default function EnrollioSupportWidget() {
                             initial={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onSubmit={handleFeatureSubmit}
-                            className="space-y-4"
+                            className="space-y-3"
                           >
                             <div className="space-y-2">
                               <label className="text-sm font-medium" style={{ color: "#000814" }}>
-                                Name
+                                Title <span className="text-red-500">*</span>
+                              </label>
+                              <Input
+                                placeholder="Brief title for your feature"
+                                value={featureTitle}
+                                onChange={(e) => setFeatureTitle(e.target.value)}
+                                required
+                                className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium" style={{ color: "#000814" }}>
+                                Description <span className="text-red-500">*</span>
+                              </label>
+                              <Textarea
+                                placeholder="Describe your feature idea in detail..."
+                                value={featureDescription}
+                                onChange={(e) => setFeatureDescription(e.target.value)}
+                                required
+                                rows={3}
+                                className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300] resize-none"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium" style={{ color: "#000814" }}>
+                                Product Area <span className="text-red-500">*</span>
+                              </label>
+                              <Select value={featureProductArea} onValueChange={(value: "CRM" | "Class Registration") => setFeatureProductArea(value)} required>
+                                <SelectTrigger className="bg-white border-gray-200 text-black focus:border-[#FFC300] focus:ring-[#FFC300]">
+                                  <SelectValue placeholder="Select product area" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="CRM">CRM</SelectItem>
+                                  <SelectItem value="Class Registration">Class Registration</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium" style={{ color: "#000814" }}>
+                                Tags
+                              </label>
+                              <Input
+                                placeholder="integration, calendar, sync (comma-separated)"
+                                value={featureTags}
+                                onChange={(e) => setFeatureTags(e.target.value)}
+                                className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300]"
+                              />
+                              <p className="text-xs text-gray-500">Separate multiple tags with commas</p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium" style={{ color: "#000814" }}>
+                                Name <span className="text-red-500">*</span>
                               </label>
                               <Input
                                 placeholder="Your name"
@@ -1374,7 +1470,7 @@ export default function EnrollioSupportWidget() {
 
                             <div className="space-y-2">
                               <label className="text-sm font-medium" style={{ color: "#000814" }}>
-                                Email
+                                Email <span className="text-red-500">*</span>
                               </label>
                               <Input
                                 type="email"
@@ -1386,37 +1482,30 @@ export default function EnrollioSupportWidget() {
                               />
                             </div>
 
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium" style={{ color: "#000814" }}>
-                                Feature Idea
-                              </label>
-                              <Textarea
-                                placeholder="Describe your feature idea..."
-                                value={featureIdea}
-                                onChange={(e) => setFeatureIdea(e.target.value)}
-                                required
-                                rows={4}
-                                className="bg-white border-gray-200 text-black placeholder:text-gray-400 focus:border-[#FFC300] focus:ring-[#FFC300] resize-none"
-                              />
-                            </div>
-
                             <Button
                               type="submit"
+                              disabled={isSubmittingFeature}
                               className="w-full font-semibold transition-all hover:shadow-[0_0_30px_rgba(255,195,0,0.6)]"
                               style={{
                                 background: "linear-gradient(135deg, #FFC300 0%, #FFD60A 100%)",
                                 color: "#000814",
                               }}
                             >
-                              Submit Feature Request
+                              {isSubmittingFeature ? (
+                                <>
+                                  <div className="h-4 w-4 mr-2 border-2 border-[#000814] border-t-transparent rounded-full animate-spin" />
+                                  Submitting...
+                                </>
+                              ) : (
+                                "Submit Feature Request"
+                              )}
                             </Button>
                           </motion.form>
                         )}
                       </AnimatePresence>
 
                       <p className="text-xs text-center text-gray-500 pt-2">
-                        {/* TODO: Connect to /api/feedback */}
-                        We read every submission
+                        Your feature request will be saved to our product board
                       </p>
                     </motion.div>
                   )}

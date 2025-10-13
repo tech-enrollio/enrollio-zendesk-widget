@@ -219,12 +219,12 @@ export default function EnrollioSupportWidget() {
   ]
 
   const helpLinks = [
-    { title: "Getting Started Guide", icon: "🚀" },
-    { title: "Connect Stripe Payment", icon: "💳" },
-    { title: "Manage Enrollments", icon: "📋" },
-    { title: "Set Up Classes", icon: "🎓" },
-    { title: "Student Communication", icon: "💬" },
-    { title: "Billing & Invoices", icon: "💰" },
+    { title: "Getting Started Guide", icon: "🚀", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40183974730011--DAY-1-Getting-Everything-Connected-Enrollio-Overview" },
+    { title: "Connect Stripe Payment", icon: "💳", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184159105307-Connect-Stripe-for-Payment" },
+    { title: "Manage Enrollments", icon: "📋", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184234351003-Understanding-Opportunities-in-Enrollio" },
+    { title: "Set Up Classes", icon: "🎓", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184289123355-How-to-Set-Up-Multiple-Class-Calendars-Group-Class-Calendar" },
+    { title: "Student Communication", icon: "💬", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184100666011-Improved-Number-Validation-for-Accurate-Communication-in-Enrollio" },
+    { title: "Billing & Invoices", icon: "💰", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184299544859-Enrollio-Billing-Dashboard" },
   ]
 
   // Helper function to format dates
@@ -1772,11 +1772,14 @@ export default function EnrollioSupportWidget() {
                                 Popular Topics
                               </h4>
                               {helpLinks.map((link, index) => (
-                                <motion.button
+                                <motion.a
                                   key={index}
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
                                   whileTap={{ scale: 0.98 }}
-                                  className="w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
+                                  className="block w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300] no-underline"
                                 >
                                   <div className="flex items-center gap-3">
                                     <span className="text-xl">{link.icon}</span>
@@ -1785,7 +1788,7 @@ export default function EnrollioSupportWidget() {
                                     </span>
                                     <ExternalLink className="h-4 w-4 text-gray-400 ml-auto" />
                                   </div>
-                                </motion.button>
+                                </motion.a>
                               ))}
                             </div>
                           )}

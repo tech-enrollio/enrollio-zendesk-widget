@@ -1165,11 +1165,6 @@ export default function EnrollioSupportWidget() {
                                 </div>
                               ))
                             )}
-                            {isLoadingMessages && chatMessages.length > 0 && (
-                              <div className="text-center py-2">
-                                <div className="inline-block h-4 w-4 border-2 border-gray-300 border-t-[#FFC300] rounded-full animate-spin" />
-                              </div>
-                            )}
                           </div>
 
                           <div className="space-y-2 pt-4 border-t border-gray-100">

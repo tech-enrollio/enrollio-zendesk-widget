@@ -37,6 +37,8 @@ interface Message {
   content: string
   timestamp: string
   author_id?: number
+  authorName?: string
+  authorPhoto?: string
 }
 
 interface ZendeskComment {
@@ -45,6 +47,13 @@ interface ZendeskComment {
   author_id: number
   created_at: string
   public: boolean
+  user?: {
+    id: number
+    name: string
+    photo?: {
+      content_url: string
+    }
+  }
 }
 
 interface NewsItem {
@@ -574,6 +583,8 @@ export default function EnrollioSupportWidget() {
             minute: "2-digit",
           }),
           author_id: comment.author_id,
+          authorName: comment.user?.name || "Unknown",
+          authorPhoto: comment.user?.photo?.content_url,
         }))
 
         setChatMessages(formattedMessages)
@@ -1115,13 +1126,18 @@ export default function EnrollioSupportWidget() {
                               chatMessages.map((msg) => (
                                 <div key={msg.id} className="flex gap-3">
                                   <Avatar className="h-8 w-8 flex-shrink-0">
+                                    {msg.sender === "agent" && msg.authorPhoto ? (
+                                      <AvatarImage src={msg.authorPhoto} alt={msg.authorName || "Agent"} />
+                                    ) : null}
                                     <AvatarFallback
                                       style={{
                                         backgroundColor: msg.sender === "user" ? "#FFC300" : "#000814",
                                         color: msg.sender === "user" ? "#000814" : "#FFC300",
                                       }}
                                     >
-                                      {msg.sender === "user" ? "U" : "A"}
+                                      {msg.sender === "user"
+                                        ? (chatName || msg.authorName || "U").charAt(0).toUpperCase()
+                                        : (msg.authorName || "A").charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="flex-1">

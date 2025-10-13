@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Ticket ID is required" }, { status: 400 })
     }
 
-    const zendeskUrl = `https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/${ticketId}/comments.json`
+    // Fetch comments with side-loaded users data
+    const zendeskUrl = `https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/${ticketId}/comments.json?include=users`
 
     const credentials = Buffer.from(`${ZENDESK_EMAIL}:${ZENDESK_API_TOKEN}`).toString("base64")
 
@@ -32,7 +33,22 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json()
-    return NextResponse.json({ comments: data.comments })
+
+    // Create a map of users for easy lookup
+    const usersMap: Record<number, any> = {}
+    if (data.users) {
+      data.users.forEach((user: any) => {
+        usersMap[user.id] = user
+      })
+    }
+
+    // Enrich comments with user data
+    const enrichedComments = data.comments.map((comment: any) => ({
+      ...comment,
+      user: usersMap[comment.author_id] || null,
+    }))
+
+    return NextResponse.json({ comments: enrichedComments })
   } catch (error) {
     console.error("Error fetching messages:", error)
     return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 })

@@ -1418,22 +1418,14 @@ export default function EnrollioSupportWidget() {
 
                       {/* Load more trigger */}
                       {roadmapFeatures.length < allRoadmapFeatures.length && (
-                        <div ref={roadmapLoadMoreRef} className="py-4">
-                          {isLoadingMoreRoadmap ? (
-                            <div className="flex items-center justify-center">
+                        <>
+                          <div ref={roadmapLoadMoreRef} className="h-4" />
+                          {isLoadingMoreRoadmap && (
+                            <div className="flex items-center justify-center py-4">
                               <div className="h-6 w-6 border-3 border-gray-200 border-t-[#FFC300] rounded-full animate-spin" />
                             </div>
-                          ) : (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={loadMoreRoadmap}
-                              className="w-full text-gray-600 hover:text-[#000814] hover:bg-gray-100"
-                            >
-                              Load more items...
-                            </Button>
                           )}
-                        </div>
+                        </>
                       )}
 
                       <p className="text-xs text-center text-gray-500 pt-2">

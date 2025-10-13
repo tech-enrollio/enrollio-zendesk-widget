@@ -1116,7 +1116,7 @@ export default function EnrollioSupportWidget() {
                       ) : (
                         /* Chat messages and input */
                         <>
-                          <div className="space-y-3 min-h-[200px] max-h-[280px] overflow-y-auto">
+                          <div className="space-y-4 min-h-[200px] max-h-[280px] overflow-y-auto px-1">
                             {chatMessages.length === 0 ? (
                               <div className="text-center py-8">
                                 <p className="text-sm text-gray-500">Your message has been sent!</p>
@@ -1124,8 +1124,8 @@ export default function EnrollioSupportWidget() {
                               </div>
                             ) : (
                               chatMessages.map((msg) => (
-                                <div key={msg.id} className="flex gap-3">
-                                  <Avatar className="h-8 w-8 flex-shrink-0">
+                                <div key={msg.id} className="flex gap-3 items-start">
+                                  <Avatar className="h-8 w-8 flex-shrink-0 mt-0.5">
                                     {msg.sender === "agent" && msg.authorPhoto ? (
                                       <AvatarImage src={msg.authorPhoto} alt={msg.authorName || "Agent"} />
                                     ) : null}
@@ -1140,23 +1140,33 @@ export default function EnrollioSupportWidget() {
                                         : (msg.authorName || "A").charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <div className="flex-1">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-baseline gap-2 mb-1">
+                                      {msg.authorName && (
+                                        <span className="text-xs font-medium text-gray-700">
+                                          {msg.sender === "user" ? chatName || msg.authorName : msg.authorName}
+                                        </span>
+                                      )}
+                                      <span className="text-xs text-gray-500">{msg.timestamp}</span>
+                                    </div>
                                     <div
-                                      className="rounded-lg p-3 text-sm"
+                                      className="rounded-lg px-3 py-2 text-sm break-words"
                                       style={{
                                         backgroundColor: msg.sender === "user" ? "#FFC300" : "#F3F4F6",
                                         color: "#000814",
+                                        wordWrap: "break-word",
+                                        overflowWrap: "break-word",
+                                        whiteSpace: "pre-wrap",
                                       }}
                                     >
                                       {msg.content}
                                     </div>
-                                    <div className="text-xs text-gray-500 mt-1">{msg.timestamp}</div>
                                   </div>
                                 </div>
                               ))
                             )}
                             {isLoadingMessages && chatMessages.length > 0 && (
-                              <div className="text-center">
+                              <div className="text-center py-2">
                                 <div className="inline-block h-4 w-4 border-2 border-gray-300 border-t-[#FFC300] rounded-full animate-spin" />
                               </div>
                             )}

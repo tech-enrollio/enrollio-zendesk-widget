@@ -444,17 +444,22 @@ export default function EnrollioSupportWidget() {
   }, [displayedNewsCount, allLatestFeatures, isLoadingMoreNews])
 
   // Load more roadmap items
+  const loadMoreRoadmapRef = useRef(false)
   const loadMoreRoadmap = useCallback(() => {
-    if (isLoadingMoreRoadmap || displayedRoadmapCount >= allRoadmapFeatures.length) return
+    // Prevent multiple simultaneous loads
+    if (loadMoreRoadmapRef.current || displayedRoadmapCount >= allRoadmapFeatures.length) return
 
+    loadMoreRoadmapRef.current = true
     setIsLoadingMoreRoadmap(true)
+
     setTimeout(() => {
       const newCount = Math.min(displayedRoadmapCount + 10, allRoadmapFeatures.length)
       setDisplayedRoadmapCount(newCount)
       setRoadmapFeatures(allRoadmapFeatures.slice(0, newCount))
       setIsLoadingMoreRoadmap(false)
+      loadMoreRoadmapRef.current = false
     }, 500)
-  }, [displayedRoadmapCount, allRoadmapFeatures, isLoadingMoreRoadmap])
+  }, [displayedRoadmapCount, allRoadmapFeatures])
 
   // Set up intersection observer for news
   useEffect(() => {
@@ -484,21 +489,21 @@ export default function EnrollioSupportWidget() {
 
     roadmapObserverRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && activeTab === "roadmap") {
           loadMoreRoadmap()
         }
       },
       { threshold: 0.1 }
     )
 
-    if (roadmapLoadMoreRef.current) {
+    if (roadmapLoadMoreRef.current && activeTab === "roadmap") {
       roadmapObserverRef.current.observe(roadmapLoadMoreRef.current)
     }
 
     return () => {
       if (roadmapObserverRef.current) roadmapObserverRef.current.disconnect()
     }
-  }, [loadMoreRoadmap])
+  }, [loadMoreRoadmap, activeTab])
 
   // Search help center articles with debouncing
   useEffect(() => {

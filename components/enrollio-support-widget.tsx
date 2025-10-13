@@ -110,6 +110,7 @@ export default function EnrollioSupportWidget() {
   const [featureTags, setFeatureTags] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [submitted, setSubmitted] = useState(false)
+  const [featureError, setFeatureError] = useState<string | null>(null)
   const [isSubmittingFeature, setIsSubmittingFeature] = useState(false)
   const [latestFeatures, setLatestFeatures] = useState<Feature[]>([])
   const [roadmapFeatures, setRoadmapFeatures] = useState<Feature[]>([])
@@ -670,6 +671,19 @@ export default function EnrollioSupportWidget() {
 
   const handleFeatureSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setFeatureError(null) // Clear previous errors
+
+    // Validation: Check title and description length
+    if (featureTitle.trim().length < 5) {
+      setFeatureError("Title must be at least 5 characters long.")
+      return
+    }
+
+    if (featureDescription.trim().length < 10) {
+      setFeatureError("Description must be at least 10 characters long.")
+      return
+    }
+
     setIsSubmittingFeature(true)
 
     try {
@@ -722,6 +736,7 @@ export default function EnrollioSupportWidget() {
 
       // Show success message
       setSubmitted(true)
+      setFeatureError(null) // Clear any errors
       setTimeout(() => {
         setSubmitted(false)
         setFeatureName("")
@@ -734,7 +749,7 @@ export default function EnrollioSupportWidget() {
     } catch (error) {
       console.error("Error submitting feature request:", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to submit feature request. Please try again."
-      alert(errorMessage)
+      setFeatureError(errorMessage)
     } finally {
       setIsSubmittingFeature(false)
     }
@@ -1393,6 +1408,44 @@ export default function EnrollioSupportWidget() {
                         </h3>
                         <p className="text-sm text-gray-600">Share your ideas with our team</p>
                       </div>
+
+                      {/* Error Notification */}
+                      <AnimatePresence>
+                        {featureError && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Card
+                              className="p-4 text-center bg-white"
+                              style={{
+                                borderColor: "#DC2626",
+                                borderWidth: "2px",
+                              }}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="text-2xl">⚠️</div>
+                                <div className="flex-1 text-left">
+                                  <h4 className="font-semibold mb-1" style={{ color: "#DC2626" }}>
+                                    Validation Error
+                                  </h4>
+                                  <p className="text-sm text-gray-700">{featureError}</p>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setFeatureError(null)}
+                                  className="h-6 w-6 p-0 -mt-1"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </Card>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
 
                       <AnimatePresence mode="wait">
                         {submitted ? (

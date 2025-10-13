@@ -346,6 +346,14 @@ export default function EnrollioSupportWidget() {
     setChatMessages([]) // Will be loaded by polling
   }
 
+  // Reset chat to initial state (show Recent Chats view)
+  const resetChatView = () => {
+    setIsChatStarted(false)
+    setTicketId(null)
+    setRequesterId(null)
+    setChatMessages([])
+  }
+
   // Fetch latest features from API
   useEffect(() => {
     const fetchLatestFeatures = async () => {
@@ -842,7 +850,10 @@ export default function EnrollioSupportWidget() {
                         <motion.button
                           whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => setActiveTab("chat")}
+                          onClick={() => {
+                            resetChatView()
+                            setActiveTab("chat")
+                          }}
                           className="p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
                           <MessageCircle className="h-6 w-6 mb-2" style={{ color: "#000814" }} />
@@ -1792,7 +1803,10 @@ export default function EnrollioSupportWidget() {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setActiveTab("chat")}
+                    onClick={() => {
+                      resetChatView()
+                      setActiveTab("chat")
+                    }}
                     className={`flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
                       activeTab === "chat" ? "" : "hover:bg-gray-100"
                     }`}

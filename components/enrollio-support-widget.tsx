@@ -126,6 +126,7 @@ export default function EnrollioSupportWidget() {
   const [roadmapError, setRoadmapError] = useState<string | null>(null)
   const [helpArticles, setHelpArticles] = useState<HelpArticle[]>([])
   const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(null)
+  const [selectedNewsFeature, setSelectedNewsFeature] = useState<Feature | null>(null)
   const [isSearchingHelp, setIsSearchingHelp] = useState(false)
   const [helpSearchError, setHelpSearchError] = useState<string | null>(null)
 
@@ -1163,14 +1164,58 @@ export default function EnrollioSupportWidget() {
                       transition={{ duration: 0.3 }}
                       className="space-y-4"
                     >
-                      <div>
-                        <h3 className="text-lg font-semibold mb-1" style={{ color: "#000814" }}>
-                          Latest Updates 🗞️
-                        </h3>
-                        <p className="text-sm text-gray-600">Stay updated with our latest features</p>
-                      </div>
+                      {/* Article detail view */}
+                      {selectedNewsFeature ? (
+                        <>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedNewsFeature(null)}
+                              className="text-gray-500 hover:text-[#000814] -ml-2"
+                            >
+                              <ArrowLeft className="h-4 w-4 mr-1" />
+                              Back to updates
+                            </Button>
+                          </div>
+                          <div className="space-y-4">
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-semibold leading-tight" style={{ color: "#000814" }}>
+                                  {selectedNewsFeature.title}
+                                </h3>
+                                {selectedNewsFeature.productArea && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                    style={{
+                                      backgroundColor: "#F3F4F6",
+                                      color: "#6B7280",
+                                    }}
+                                  >
+                                    {selectedNewsFeature.productArea}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                Released {formatDate(selectedNewsFeature.updatedAt)}
+                              </p>
+                            </div>
+                            <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                              {selectedNewsFeature.description}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <h3 className="text-lg font-semibold mb-1" style={{ color: "#000814" }}>
+                              Latest Updates 🗞️
+                            </h3>
+                            <p className="text-sm text-gray-600">Stay updated with our latest features</p>
+                          </div>
 
-                      {isLoadingFeatures ? (
+                          {isLoadingFeatures ? (
                         <div className="flex items-center justify-center py-12">
                           <div className="text-center space-y-3">
                             <div className="h-8 w-8 mx-auto border-4 border-gray-200 border-t-[#FFC300] rounded-full animate-spin" />
@@ -1204,6 +1249,7 @@ export default function EnrollioSupportWidget() {
                               transition={{ delay: index * 0.1 }}
                             >
                               <Card
+                                onClick={() => setSelectedNewsFeature(feature)}
                                 className="transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer bg-white border-gray-200"
                                 style={{
                                   borderLeft: "3px solid #FFC300",
@@ -1263,9 +1309,11 @@ export default function EnrollioSupportWidget() {
                         </div>
                       )}
 
-                      <p className="text-xs text-center text-gray-500 pt-2">
-                        Showing {latestFeatures.length} of {allLatestFeatures.length} completed features
-                      </p>
+                          <p className="text-xs text-center text-gray-500 pt-2">
+                            Showing {latestFeatures.length} of {allLatestFeatures.length} completed features
+                          </p>
+                        </>
+                      )}
                     </motion.div>
                   )}
 

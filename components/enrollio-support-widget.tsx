@@ -969,14 +969,6 @@ export default function EnrollioSupportWidget() {
                             <div className="space-y-3 mb-4">
                               <div className="flex items-center justify-between">
                                 <h4 className="text-sm font-semibold text-gray-600">Recent Chats</h4>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setShowEmailLookup(true)}
-                                  className="text-xs text-[#FFC300] hover:text-[#000814] hover:bg-gray-100"
-                                >
-                                  Load by email
-                                </Button>
                               </div>
 
                               <div className="space-y-2 max-h-[200px] overflow-y-auto">
@@ -1024,45 +1016,6 @@ export default function EnrollioSupportWidget() {
                               <div className="border-t border-gray-200 pt-3">
                                 <p className="text-xs text-center text-gray-500 mb-3">Or start a new conversation</p>
                               </div>
-                            </div>
-                          )}
-
-                          {/* Email Lookup Modal */}
-                          {showEmailLookup && (
-                            <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-semibold text-[#000814]">Load Chats by Email</h4>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setShowEmailLookup(false)}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <Input
-                                type="email"
-                                placeholder="Enter your email"
-                                value={lookupEmail}
-                                onChange={(e) => setLookupEmail(e.target.value)}
-                                className="bg-white"
-                              />
-                              <Button
-                                onClick={() => loadChatsByEmail(lookupEmail)}
-                                disabled={!lookupEmail.trim() || isLoadingChats}
-                                className="w-full"
-                                style={{ backgroundColor: "#FFC300", color: "#000814" }}
-                              >
-                                {isLoadingChats ? (
-                                  <>
-                                    <div className="h-4 w-4 mr-2 border-2 border-[#000814] border-t-transparent rounded-full animate-spin" />
-                                    Loading...
-                                  </>
-                                ) : (
-                                  "Load My Chats"
-                                )}
-                              </Button>
                             </div>
                           )}
 

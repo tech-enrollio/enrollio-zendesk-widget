@@ -428,7 +428,10 @@ export default function EnrollioSupportWidget() {
           )
           .sort((a: Feature, b: Feature) => {
             // Sort by most recent date first (descending order)
-            const dateDiff = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            // Use createdAt as fallback if updatedAt is not available
+            const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime()
+            const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime()
+            const dateDiff = dateB - dateA
             if (dateDiff !== 0) return dateDiff
 
             // Then by vote count descending

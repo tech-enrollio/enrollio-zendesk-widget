@@ -287,6 +287,15 @@ export default function EnrollioSupportWidget() {
     loadLocalChats()
   }, [])
 
+  // Auto-populate name and email from most recent chat session
+  useEffect(() => {
+    if (previousChats.length > 0 && !chatName && !chatEmail) {
+      const mostRecentChat = previousChats[0]
+      setChatName(mostRecentChat.name)
+      setChatEmail(mostRecentChat.email)
+    }
+  }, [previousChats, chatName, chatEmail])
+
   // Save chat session to localStorage
   const saveChatToLocal = (session: ChatSession) => {
     try {

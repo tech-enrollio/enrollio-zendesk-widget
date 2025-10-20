@@ -427,20 +427,11 @@ export default function EnrollioSupportWidget() {
             ["PLANNED", "IN_PROGRESS", "COMPLETED"].includes(feature.status)
           )
           .sort((a: Feature, b: Feature) => {
-            // Sort by status priority first (in-progress > planned > completed)
-            const statusPriority: Record<string, number> = {
-              IN_PROGRESS: 1,
-              PLANNED: 2,
-              COMPLETED: 3,
-            }
-            const priorityDiff = (statusPriority[a.status] || 4) - (statusPriority[b.status] || 4)
-            if (priorityDiff !== 0) return priorityDiff
-
-            // Then by most recent date (updatedAt)
+            // Sort by most recent date first (descending order)
             const dateDiff = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
             if (dateDiff !== 0) return dateDiff
 
-            // Finally by vote count descending
+            // Then by vote count descending
             return b.voteCount - a.voteCount
           })
 

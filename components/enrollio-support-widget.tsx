@@ -96,6 +96,15 @@ interface HelpArticle {
   updated_at: string
 }
 
+interface ZendeskArticle {
+  id: number
+  title: string
+  body: string
+  created_at: string
+  updated_at: string
+  html_url: string
+}
+
 interface ChatSession {
   ticketId: string
   requesterId: number
@@ -122,21 +131,18 @@ export default function EnrollioSupportWidget() {
   const [submitted, setSubmitted] = useState(false)
   const [featureError, setFeatureError] = useState<string | null>(null)
   const [isSubmittingFeature, setIsSubmittingFeature] = useState(false)
-  const [latestFeatures, setLatestFeatures] = useState<Feature[]>([])
+  const [newsArticles, setNewsArticles] = useState<ZendeskArticle[]>([])
+  const [selectedNewsArticle, setSelectedNewsArticle] = useState<ZendeskArticle | null>(null)
   const [roadmapFeatures, setRoadmapFeatures] = useState<Feature[]>([])
-  const [allLatestFeatures, setAllLatestFeatures] = useState<Feature[]>([])
   const [allRoadmapFeatures, setAllRoadmapFeatures] = useState<Feature[]>([])
-  const [displayedNewsCount, setDisplayedNewsCount] = useState(10)
   const [displayedRoadmapCount, setDisplayedRoadmapCount] = useState(10)
-  const [isLoadingFeatures, setIsLoadingFeatures] = useState(false)
+  const [isLoadingNews, setIsLoadingNews] = useState(false)
   const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(false)
-  const [isLoadingMoreNews, setIsLoadingMoreNews] = useState(false)
   const [isLoadingMoreRoadmap, setIsLoadingMoreRoadmap] = useState(false)
-  const [featuresError, setFeaturesError] = useState<string | null>(null)
+  const [newsError, setNewsError] = useState<string | null>(null)
   const [roadmapError, setRoadmapError] = useState<string | null>(null)
   const [helpArticles, setHelpArticles] = useState<HelpArticle[]>([])
   const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(null)
-  const [selectedNewsFeature, setSelectedNewsFeature] = useState<Feature | null>(null)
   const [isSearchingHelp, setIsSearchingHelp] = useState(false)
   const [helpSearchError, setHelpSearchError] = useState<string | null>(null)
 
@@ -154,9 +160,7 @@ export default function EnrollioSupportWidget() {
   const [lookupEmail, setLookupEmail] = useState("")
   const [isLoadingChats, setIsLoadingChats] = useState(false)
 
-  const newsObserverRef = useRef<IntersectionObserver | null>(null)
   const roadmapObserverRef = useRef<IntersectionObserver | null>(null)
-  const newsLoadMoreRef = useRef<HTMLDivElement>(null)
   const roadmapLoadMoreRef = useRef<HTMLDivElement>(null)
 
   // Mock data for news items (not used anymore)
@@ -373,38 +377,36 @@ export default function EnrollioSupportWidget() {
     setChatMessages([])
   }
 
-  // Fetch latest features from API
+  // Fetch Zendesk articles for News tab
   useEffect(() => {
-    const fetchLatestFeatures = async () => {
-      setIsLoadingFeatures(true)
-      setFeaturesError(null)
+    const fetchNewsArticles = async () => {
+      setIsLoadingNews(true)
+      setNewsError(null)
 
       try {
-        const response = await fetch("/api/features")
+        const response = await fetch("/api/zendesk-articles")
         if (!response.ok) {
-          throw new Error("Failed to fetch features")
+          throw new Error("Failed to fetch articles")
         }
 
         const data = await response.json()
 
-        // Filter for completed features and sort by most recent
-        const completedFeatures = data.features
-          .filter((feature: Feature) => feature.status === "COMPLETED")
-          .sort((a: Feature, b: Feature) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          )
+        // Sort articles by created_at descending (most recent first)
+        const sortedArticles = (data.articles || []).sort(
+          (a: ZendeskArticle, b: ZendeskArticle) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
 
-        setAllLatestFeatures(completedFeatures)
-        setLatestFeatures(completedFeatures.slice(0, 10))
+        setNewsArticles(sortedArticles)
       } catch (error) {
-        console.error("Error fetching features:", error)
-        setFeaturesError("Unable to load latest updates")
+        console.error("Error fetching news articles:", error)
+        setNewsError("Unable to load latest updates")
       } finally {
-        setIsLoadingFeatures(false)
+        setIsLoadingNews(false)
       }
     }
 
-    fetchLatestFeatures()
+    fetchNewsArticles()
   }, [])
 
   // Fetch roadmap features from API
@@ -451,18 +453,6 @@ export default function EnrollioSupportWidget() {
     fetchRoadmapFeatures()
   }, [])
 
-  // Load more news items
-  const loadMoreNews = useCallback(() => {
-    if (isLoadingMoreNews || displayedNewsCount >= allLatestFeatures.length) return
-
-    setIsLoadingMoreNews(true)
-    setTimeout(() => {
-      const newCount = Math.min(displayedNewsCount + 10, allLatestFeatures.length)
-      setDisplayedNewsCount(newCount)
-      setLatestFeatures(allLatestFeatures.slice(0, newCount))
-      setIsLoadingMoreNews(false)
-    }, 500)
-  }, [displayedNewsCount, allLatestFeatures, isLoadingMoreNews])
 
   // Load more roadmap items
   const loadMoreRoadmapRef = useRef(false)
@@ -481,28 +471,6 @@ export default function EnrollioSupportWidget() {
       loadMoreRoadmapRef.current = false
     }, 500)
   }, [displayedRoadmapCount, allRoadmapFeatures])
-
-  // Set up intersection observer for news
-  useEffect(() => {
-    if (newsObserverRef.current) newsObserverRef.current.disconnect()
-
-    newsObserverRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreNews()
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (newsLoadMoreRef.current) {
-      newsObserverRef.current.observe(newsLoadMoreRef.current)
-    }
-
-    return () => {
-      if (newsObserverRef.current) newsObserverRef.current.disconnect()
-    }
-  }, [loadMoreNews])
 
   // Set up intersection observer for roadmap
   useEffect(() => {
@@ -1174,13 +1142,13 @@ export default function EnrollioSupportWidget() {
                       className="space-y-4"
                     >
                       {/* Article detail view */}
-                      {selectedNewsFeature ? (
+                      {selectedNewsArticle ? (
                         <>
                           <div className="flex items-center gap-2 mb-3">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setSelectedNewsFeature(null)}
+                              onClick={() => setSelectedNewsArticle(null)}
                               className="text-gray-500 hover:text-[#000814] -ml-2"
                             >
                               <ArrowLeft className="h-4 w-4 mr-1" />
@@ -1189,30 +1157,17 @@ export default function EnrollioSupportWidget() {
                           </div>
                           <div className="space-y-4">
                             <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="text-lg font-semibold leading-tight" style={{ color: "#000814" }}>
-                                  {selectedNewsFeature.title}
-                                </h3>
-                                {selectedNewsFeature.productArea && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs"
-                                    style={{
-                                      backgroundColor: "#F3F4F6",
-                                      color: "#6B7280",
-                                    }}
-                                  >
-                                    {selectedNewsFeature.productArea}
-                                  </Badge>
-                                )}
-                              </div>
+                              <h3 className="text-lg font-semibold leading-tight" style={{ color: "#000814" }}>
+                                {selectedNewsArticle.title}
+                              </h3>
                               <p className="text-xs text-gray-500">
-                                Released {formatDate(selectedNewsFeature.updatedAt)}
+                                Published {formatDate(selectedNewsArticle.created_at)}
                               </p>
                             </div>
-                            <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                              {selectedNewsFeature.description}
-                            </div>
+                            <div
+                              className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none [&_p]:mb-3 [&_ul]:mb-3 [&_ol]:mb-3 [&_li]:mb-1 [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:mt-3 [&_h3]:mb-2 [&_strong]:font-semibold [&_em]:font-medium"
+                              dangerouslySetInnerHTML={{ __html: selectedNewsArticle.body }}
+                            />
                           </div>
                         </>
                       ) : (
@@ -1224,102 +1179,65 @@ export default function EnrollioSupportWidget() {
                             <p className="text-sm text-gray-600">Stay updated with our latest features</p>
                           </div>
 
-                          {isLoadingFeatures ? (
-                        <div className="flex items-center justify-center py-12">
-                          <div className="text-center space-y-3">
-                            <div className="h-8 w-8 mx-auto border-4 border-gray-200 border-t-[#FFC300] rounded-full animate-spin" />
-                            <p className="text-sm text-gray-500">Loading latest updates...</p>
-                          </div>
-                        </div>
-                      ) : featuresError ? (
-                        <div className="flex items-center justify-center py-12">
-                          <div className="text-center space-y-2">
-                            <p className="text-sm text-gray-600">{featuresError}</p>
-                            <Button
-                              size="sm"
-                              onClick={() => window.location.reload()}
-                              style={{ backgroundColor: "#FFC300", color: "#000814" }}
-                            >
-                              Try Again
-                            </Button>
-                          </div>
-                        </div>
-                      ) : latestFeatures.length === 0 ? (
-                        <div className="flex items-center justify-center py-12">
-                          <p className="text-sm text-gray-500">No updates available at the moment</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {latestFeatures.map((feature, index) => (
-                            <motion.div
-                              key={feature.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                            >
-                              <Card
-                                onClick={() => setSelectedNewsFeature(feature)}
-                                className="transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer bg-white border-gray-200"
-                                style={{
-                                  borderLeft: "3px solid #FFC300",
-                                }}
-                              >
-                                <CardHeader className="pb-3">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <CardTitle
-                                      className="text-sm font-semibold leading-relaxed"
-                                      style={{ color: "#000814" }}
-                                    >
-                                      {feature.title}
-                                    </CardTitle>
-                                    {feature.productArea && (
-                                      <Badge
-                                        variant="secondary"
-                                        className="text-xs"
-                                        style={{
-                                          backgroundColor: "#F3F4F6",
-                                          color: "#6B7280",
-                                        }}
-                                      >
-                                        {feature.productArea}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <CardDescription className="text-xs text-gray-500">
-                                    {formatDate(feature.updatedAt)}
-                                  </CardDescription>
-                                </CardHeader>
-                                <CardContent className="pt-0">
-                                  <p className="text-sm text-gray-700 leading-relaxed">{feature.description}</p>
-                                </CardContent>
-                              </Card>
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Load more trigger */}
-                      {latestFeatures.length < allLatestFeatures.length && (
-                        <div ref={newsLoadMoreRef} className="py-4">
-                          {isLoadingMoreNews ? (
-                            <div className="flex items-center justify-center">
-                              <div className="h-6 w-6 border-3 border-gray-200 border-t-[#FFC300] rounded-full animate-spin" />
+                          {isLoadingNews ? (
+                            <div className="flex items-center justify-center py-12">
+                              <div className="text-center space-y-3">
+                                <div className="h-8 w-8 mx-auto border-4 border-gray-200 border-t-[#FFC300] rounded-full animate-spin" />
+                                <p className="text-sm text-gray-500">Loading latest updates...</p>
+                              </div>
+                            </div>
+                          ) : newsError ? (
+                            <div className="flex items-center justify-center py-12">
+                              <div className="text-center space-y-2">
+                                <p className="text-sm text-gray-600">{newsError}</p>
+                                <Button
+                                  size="sm"
+                                  onClick={() => window.location.reload()}
+                                  style={{ backgroundColor: "#FFC300", color: "#000814" }}
+                                >
+                                  Try Again
+                                </Button>
+                              </div>
+                            </div>
+                          ) : newsArticles.length === 0 ? (
+                            <div className="flex items-center justify-center py-12">
+                              <p className="text-sm text-gray-500">No updates available at the moment</p>
                             </div>
                           ) : (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={loadMoreNews}
-                              className="w-full text-gray-600 hover:text-[#000814] hover:bg-gray-100"
-                            >
-                              Load more updates...
-                            </Button>
+                            <div className="space-y-3">
+                              {newsArticles.map((article, index) => (
+                                <motion.div
+                                  key={article.id}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: index * 0.05 }}
+                                >
+                                  <Card
+                                    onClick={() => setSelectedNewsArticle(article)}
+                                    className="transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer bg-white border-gray-200"
+                                    style={{
+                                      borderLeft: "3px solid #FFC300",
+                                    }}
+                                  >
+                                    <CardHeader className="pb-3">
+                                      <CardTitle
+                                        className="text-sm font-semibold leading-relaxed"
+                                        style={{ color: "#000814" }}
+                                      >
+                                        {article.title}
+                                      </CardTitle>
+                                      <CardDescription className="text-xs text-gray-500">
+                                        {formatDate(article.created_at)}
+                                      </CardDescription>
+                                    </CardHeader>
+                                  </Card>
+                                </motion.div>
+                              ))}
+                            </div>
                           )}
-                        </div>
-                      )}
 
                           <p className="text-xs text-center text-gray-500 pt-2">
-                            Showing {latestFeatures.length} of {allLatestFeatures.length} completed features
+                            Showing {newsArticles.length} {newsArticles.length === 1 ? 'article' : 'articles'}
                           </p>
                         </>
                       )}

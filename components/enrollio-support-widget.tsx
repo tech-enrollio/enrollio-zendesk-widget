@@ -849,16 +849,16 @@ export default function EnrollioSupportWidget() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.3 }}
-                      className="space-y-4"
+                      className="space-y-3"
                     >
-                      <div className="text-center py-4">
-                        <h2 className="text-2xl font-bold mb-2" style={{ color: "#000814" }}>
+                      <div className="text-center py-2">
+                        <h2 className="text-xl font-bold mb-1" style={{ color: "#000814" }}>
                           How can we help you today? 💛
                         </h2>
-                        <p className="text-gray-600 text-sm">Choose an option below to get started</p>
+                        <p className="text-gray-600 text-xs">Choose an option below to get started</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2.5">
+                      <div className="grid grid-cols-2 gap-2">
                         <motion.button
                           whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
                           whileTap={{ scale: 0.98 }}
@@ -866,9 +866,9 @@ export default function EnrollioSupportWidget() {
                             resetChatView()
                             setActiveTab("chat")
                           }}
-                          className="p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
-                          <MessageCircle className="h-6 w-6 mb-2" style={{ color: "#000814" }} />
+                          <MessageCircle className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Chat</div>
                             <div className="text-xs text-gray-500">Talk to Support</div>
@@ -879,9 +879,9 @@ export default function EnrollioSupportWidget() {
                           whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setActiveTab("news")}
-                          className="p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
-                          <Newspaper className="h-6 w-6 mb-2" style={{ color: "#000814" }} />
+                          <Newspaper className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">News</div>
                             <div className="text-xs text-gray-500">Latest Updates</div>
@@ -892,9 +892,9 @@ export default function EnrollioSupportWidget() {
                           whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setActiveTab("roadmap")}
-                          className="p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
-                          <Map className="h-6 w-6 mb-2" style={{ color: "#000814" }} />
+                          <Map className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Roadmap</div>
                             <div className="text-xs text-gray-500">What's Coming</div>
@@ -905,9 +905,9 @@ export default function EnrollioSupportWidget() {
                           whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setActiveTab("requests")}
-                          className="p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
-                          <Lightbulb className="h-6 w-6 mb-2" style={{ color: "#000814" }} />
+                          <Lightbulb className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Requests</div>
                             <div className="text-xs text-gray-500">Share Ideas</div>
@@ -915,14 +915,14 @@ export default function EnrollioSupportWidget() {
                         </motion.button>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2.5">
+                      <div className="grid grid-cols-2 gap-2">
                         <motion.button
                           whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setActiveTab("help")}
-                          className="p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
-                          <HelpCircle className="h-6 w-6 mb-2" style={{ color: "#000814" }} />
+                          <HelpCircle className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Help Center</div>
                             <div className="text-xs text-gray-500">Browse Tutorials and FAQs</div>
@@ -935,9 +935,9 @@ export default function EnrollioSupportWidget() {
                           rel="noopener noreferrer"
                           whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
                           whileTap={{ scale: 0.98 }}
-                          className="p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300] block no-underline"
+                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300] block no-underline"
                         >
-                          <Headphones className="h-6 w-6 mb-2" style={{ color: "#000814" }} />
+                          <Headphones className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Setup Assistance</div>
                             <div className="text-xs text-gray-500">Have our experts build out your account</div>

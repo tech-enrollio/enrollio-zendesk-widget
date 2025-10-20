@@ -27,6 +27,7 @@ import {
   ExternalLink,
   Home,
   ArrowLeft,
+  Headphones,
 } from "lucide-react"
 
 type TabType = "home" | "chat" | "news" | "roadmap" | "requests" | "help"
@@ -928,6 +929,23 @@ export default function EnrollioSupportWidget() {
                           </div>
                         </div>
                       </motion.button>
+
+                      <motion.a
+                        href="https://enrollio.ai/express-setup"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full p-4 rounded-2xl border border-gray-200 transition-all bg-white hover:border-[#FFC300] block no-underline"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Headphones className="h-6 w-6" style={{ color: "#000814" }} />
+                          <div className="text-left">
+                            <div className="font-semibold text-black text-sm">Setup Assistance</div>
+                            <div className="text-xs text-gray-500">Have our experts build out your account</div>
+                          </div>
+                        </div>
+                      </motion.a>
                     </motion.div>
                   )}
 

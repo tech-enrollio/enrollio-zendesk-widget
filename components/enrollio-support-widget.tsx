@@ -427,15 +427,15 @@ export default function EnrollioSupportWidget() {
             ["PLANNED", "IN_PROGRESS", "COMPLETED"].includes(feature.status)
           )
           .sort((a: Feature, b: Feature) => {
-            // Sort by most recent date first (descending order)
+            // Sort by vote count descending (most votes first)
+            const voteDiff = b.voteCount - a.voteCount
+            if (voteDiff !== 0) return voteDiff
+
+            // Then by most recent date as tiebreaker
             // Use createdAt as fallback if updatedAt is not available
             const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime()
             const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime()
-            const dateDiff = dateB - dateA
-            if (dateDiff !== 0) return dateDiff
-
-            // Then by vote count descending
-            return b.voteCount - a.voteCount
+            return dateB - dateA
           })
 
         setAllRoadmapFeatures(roadmapFeatures)

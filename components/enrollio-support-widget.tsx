@@ -105,6 +105,7 @@ interface ZendeskArticle {
   html_url: string
   label_names: string[]
   content_tag_ids: number[]
+  promoted: boolean
 }
 
 interface ChatSession {
@@ -400,14 +401,17 @@ export default function EnrollioSupportWidget() {
         console.log("First article (full details):", data.articles?.[0])
         console.log("=====================================")
 
-        // Sort articles by created_at descending (most recent first)
-        const sortedArticles = (data.articles || []).sort(
-          (a: ZendeskArticle, b: ZendeskArticle) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
+        // Filter for promoted articles only, then sort by created_at descending (most recent first)
+        const promotedArticles = (data.articles || [])
+          .filter((article: ZendeskArticle) => article.promoted === true)
+          .sort(
+            (a: ZendeskArticle, b: ZendeskArticle) =>
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )
 
-        console.log("Sorted articles:", sortedArticles)
-        setNewsArticles(sortedArticles)
+        console.log("Promoted articles only:", promotedArticles)
+        console.log("Filtered from", data.articles?.length, "to", promotedArticles.length, "articles")
+        setNewsArticles(promotedArticles)
       } catch (error) {
         console.error("Error fetching news articles:", error)
         setNewsError("Unable to load latest updates")

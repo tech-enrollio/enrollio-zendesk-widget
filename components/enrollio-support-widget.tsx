@@ -103,6 +103,8 @@ interface ZendeskArticle {
   created_at: string
   updated_at: string
   html_url: string
+  label_names: string[]
+  content_tag_ids: number[]
 }
 
 interface ChatSession {
@@ -391,12 +393,20 @@ export default function EnrollioSupportWidget() {
 
         const data = await response.json()
 
+        // Log the full API response to console
+        console.log("=== Zendesk Articles API Response ===")
+        console.log("Total articles:", data.count)
+        console.log("Full data:", data)
+        console.log("First article (full details):", data.articles?.[0])
+        console.log("=====================================")
+
         // Sort articles by created_at descending (most recent first)
         const sortedArticles = (data.articles || []).sort(
           (a: ZendeskArticle, b: ZendeskArticle) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )
 
+        console.log("Sorted articles:", sortedArticles)
         setNewsArticles(sortedArticles)
       } catch (error) {
         console.error("Error fetching news articles:", error)

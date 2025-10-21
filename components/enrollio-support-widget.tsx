@@ -394,13 +394,6 @@ export default function EnrollioSupportWidget() {
 
         const data = await response.json()
 
-        // Log the full API response to console
-        console.log("=== Zendesk Articles API Response ===")
-        console.log("Total articles:", data.count)
-        console.log("Full data:", data)
-        console.log("First article (full details):", data.articles?.[0])
-        console.log("=====================================")
-
         // Filter for promoted articles only, then sort by created_at descending (most recent first)
         const promotedArticles = (data.articles || [])
           .filter((article: ZendeskArticle) => article.promoted === true)
@@ -409,8 +402,6 @@ export default function EnrollioSupportWidget() {
               new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           )
 
-        console.log("Promoted articles only:", promotedArticles)
-        console.log("Filtered from", data.articles?.length, "to", promotedArticles.length, "articles")
         setNewsArticles(promotedArticles)
       } catch (error) {
         console.error("Error fetching news articles:", error)

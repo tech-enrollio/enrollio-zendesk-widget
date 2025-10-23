@@ -229,7 +229,7 @@ export default function EnrollioSupportWidget() {
   const helpLinks = [
     { title: "Getting Started Guide", icon: "🚀", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40183974730011--DAY-1-Getting-Everything-Connected-Enrollio-Overview" },
     { title: "Connect Stripe Payment", icon: "💳", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184159105307-Connect-Stripe-for-Payment" },
-    { title: "Manage Enrollments", icon: "📋", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184234351003-Understanding-Opportunities-in-Enrollio" },
+    { title: "Manage Opportunities", icon: "📋", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184234351003-Understanding-Opportunities-in-Enrollio" },
     { title: "Set Up Classes", icon: "🎓", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184289123355-How-to-Set-Up-Multiple-Class-Calendars-Group-Class-Calendar" },
     { title: "Student Communication", icon: "💬", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184100666011-Improved-Number-Validation-for-Accurate-Communication-in-Enrollio" },
     { title: "Billing & Invoices", icon: "💰", url: "https://enrollio-98596.zendesk.com/hc/en-us/articles/40184299544859-Enrollio-Billing-Dashboard" },

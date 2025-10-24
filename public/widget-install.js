@@ -4,7 +4,7 @@
   window.EnrollioWidgetLoaded = true;
 
   // Configuration
-  const WIDGET_URL = 'https://your-deployed-widget-url.vercel.app'; // Update this with your actual deployed URL
+  const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app'; // Your widget URL
 
   // Create widget container
   const container = document.createElement('div');

@@ -5,10 +5,8 @@
 Add this single line of code to your website's `<head>` section or before the closing `</body>` tag:
 
 ```html
-<script src="https://your-deployed-widget-url.vercel.app/widget-install.js" async></script>
+<script src="https://enrollio-zendesk-widget.vercel.app/widget-install.js" async></script>
 ```
-
-**Important:** Replace `your-deployed-widget-url.vercel.app` with your actual Vercel deployment URL.
 
 ## Installation Steps
 
@@ -21,21 +19,13 @@ npm run build
 vercel --prod
 ```
 
-### 2. Update the Widget URL
-
-After deployment, update the `WIDGET_URL` in `public/widget-install.js` with your actual deployment URL:
-
-```javascript
-const WIDGET_URL = 'https://your-actual-domain.vercel.app';
-```
-
-### 3. Add to Your Website
+### 2. Add to Your Website
 
 Copy and paste this code into your website's HTML:
 
 ```html
 <!-- Enrollio Support Widget -->
-<script src="https://your-actual-domain.vercel.app/widget-install.js" async></script>
+<script src="https://enrollio-zendesk-widget.vercel.app/widget-install.js" async></script>
 ```
 
 ### Recommended Placement:
@@ -61,7 +51,7 @@ Add to Site Settings → Custom Code → Footer Code
 <head>
     <title>Your Website</title>
     <!-- Enrollio Support Widget -->
-    <script src="https://your-actual-domain.vercel.app/widget-install.js" async></script>
+    <script src="https://enrollio-zendesk-widget.vercel.app/widget-install.js" async></script>
 </head>
 <body>
     <!-- Your content -->

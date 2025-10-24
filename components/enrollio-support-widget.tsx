@@ -836,7 +836,7 @@ export default function EnrollioSupportWidget() {
           {/* Content */}
           {!isMinimized && (
             <>
-              <ScrollArea className="h-[420px] bg-white">
+              <ScrollArea className="h-[440px] bg-white">
                 <div className="p-4 pb-4">
                   {/* Home Tab */}
                   {activeTab === "home" && (
@@ -1718,7 +1718,7 @@ export default function EnrollioSupportWidget() {
               </ScrollArea>
 
               <div
-                className="border-t border-gray-200 px-6 py-4 bg-white/80"
+                className="border-t border-gray-200 px-6 py-3 bg-white/80"
                 style={{
                   backdropFilter: "blur(10px)",
                 }}

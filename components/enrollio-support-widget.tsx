@@ -791,6 +791,7 @@ export default function EnrollioSupportWidget() {
           style={{
             borderRadius: "20px",
             height: isMinimized ? "60px" : "min(600px, calc(100vh - 32px))",
+            border: "1px solid #E5E7EB",
           }}
         >
           {/* Header */}

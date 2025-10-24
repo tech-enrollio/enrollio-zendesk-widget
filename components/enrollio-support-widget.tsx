@@ -775,7 +775,11 @@ export default function EnrollioSupportWidget() {
             style={{ backgroundColor: "#FFC300" }}
             aria-label="Open Enrollio Support Widget"
           >
-            <MessageCircle className="h-8 w-8" style={{ color: "#000814" }} />
+            <img
+              src="/enrollio-logo.png"
+              alt="Support"
+              className="h-10 w-10"
+            />
           </motion.button>
         ) : (
           // Full Widget

@@ -1722,6 +1722,8 @@ export default function EnrollioSupportWidget() {
                 className="border-t border-gray-200 px-6 py-3 bg-white/80"
                 style={{
                   backdropFilter: "blur(10px)",
+                  borderBottomLeftRadius: "20px",
+                  borderBottomRightRadius: "20px",
                 }}
               >
                 <div className="flex items-center justify-between gap-2">

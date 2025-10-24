@@ -306,8 +306,8 @@ export default function EnrollioSupportWidget() {
   // Send resize message to parent when widget opens/closes
   useEffect(() => {
     if (typeof window !== 'undefined' && window.parent !== window) {
-      const width = isOpen ? '450px' : '80px';
-      const height = isOpen ? '680px' : '80px';
+      const width = isOpen ? '450px' : '64px';
+      const height = isOpen ? '680px' : '64px';
       window.parent.postMessage({
         type: 'enrollio-widget-resize',
         width,

@@ -11,10 +11,10 @@
   container.id = 'enrollio-support-widget-container';
   container.style.cssText = `
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 80px;
-    height: 80px;
+    bottom: 36px;
+    right: 24px;
+    width: 64px;
+    height: 64px;
     z-index: 999999;
     pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
@@ -27,10 +27,10 @@
   iframe.style.cssText = `
     border: none;
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 80px;
-    height: 80px;
+    bottom: 36px;
+    right: 24px;
+    width: 64px;
+    height: 64px;
     z-index: 999999;
     pointer-events: auto;
     background: transparent;

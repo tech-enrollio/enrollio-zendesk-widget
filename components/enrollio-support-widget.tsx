@@ -120,7 +120,7 @@ interface ChatSession {
 }
 
 export default function EnrollioSupportWidget() {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>("home")
   const [message, setMessage] = useState("")
@@ -757,16 +757,36 @@ export default function EnrollioSupportWidget() {
     }
   }
 
-  if (!isOpen) return null
-
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans">
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        <Card
+      <AnimatePresence mode="wait">
+        {!isOpen ? (
+          // Floating Action Button
+          <motion.button
+            key="fab"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            whileHover={{ scale: 1.1, boxShadow: "0 8px 30px rgba(255, 195, 0, 0.4)" }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsOpen(true)}
+            className="w-16 h-16 rounded-full shadow-2xl flex items-center justify-center cursor-pointer border-none"
+            style={{ backgroundColor: "#FFC300" }}
+            aria-label="Open Enrollio Support Widget"
+          >
+            <MessageCircle className="h-8 w-8" style={{ color: "#000814" }} />
+          </motion.button>
+        ) : (
+          // Full Widget
+          <motion.div
+            key="widget"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <Card
           className="w-[400px] shadow-2xl transition-all duration-300 ease-in-out bg-white border-gray-200"
           style={{
             borderRadius: "20px",
@@ -1785,7 +1805,9 @@ export default function EnrollioSupportWidget() {
             </>
           )}
         </Card>
-      </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

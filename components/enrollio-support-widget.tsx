@@ -767,7 +767,7 @@ export default function EnrollioSupportWidget() {
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             whileHover={{ scale: 1.1, boxShadow: "0 8px 30px rgba(255, 195, 0, 0.4)" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
@@ -781,10 +781,10 @@ export default function EnrollioSupportWidget() {
           // Full Widget
           <motion.div
             key="widget"
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
           >
             <Card
           className="w-[400px] shadow-2xl transition-all duration-300 ease-in-out bg-white border-gray-200"

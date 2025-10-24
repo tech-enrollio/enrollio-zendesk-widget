@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import "./widget-animations.css"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -778,40 +778,25 @@ export default function EnrollioSupportWidget() {
         pointerEvents: isOpen ? "auto" : "none"
       }}
     >
-      <AnimatePresence mode="wait">
-        {!isOpen ? (
-          // Floating Action Button
-          <motion.button
-            key="fab"
-            initial={{ opacity: 1, scale: 1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ type: "spring", stiffness: 600, damping: 20, mass: 0.5 }}
-            whileHover={{ scale: 1.1, boxShadow: "0 8px 30px rgba(255, 195, 0, 0.4)" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsOpen(true)}
-            className="w-16 h-16 rounded-full shadow-2xl flex items-center justify-center cursor-pointer border-none"
-            style={{
-              backgroundColor: "#FFC300",
-              pointerEvents: "auto"
-            }}
-            aria-label="Open Enrollio Support Widget"
-          >
-            <img
-              src="/enrollio-logo.png"
-              alt="Support"
-              className="h-12 w-12 rounded-full"
-            />
-          </motion.button>
-        ) : (
-          // Full Widget
-          <motion.div
-            key="widget"
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 700, damping: 25, mass: 0.5 }}
-          >
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className={`fab-button w-16 h-16 rounded-full shadow-2xl flex items-center justify-center cursor-pointer border-none ${!isOpen ? '' : 'hidden'}`}
+        style={{
+          backgroundColor: "#FFC300",
+          pointerEvents: "auto"
+        }}
+        aria-label="Open Enrollio Support Widget"
+      >
+        <img
+          src="/enrollio-logo.png"
+          alt="Support"
+          className="h-12 w-12 rounded-full"
+        />
+      </button>
+
+      {/* Full Widget */}
+      <div className={`widget-container ${isOpen ? '' : 'hidden'}`}>
             <Card
           className="w-[400px] transition-all duration-300 ease-in-out bg-white border-gray-200"
           style={{
@@ -867,12 +852,7 @@ export default function EnrollioSupportWidget() {
                 <div className="p-4 pb-4">
                   {/* Home Tab */}
                   {activeTab === "home" && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-3"
-                    >
+                    <div className="tab-content home space-y-3">
                       <div className="text-center py-2">
                         <h2 className="text-xl font-bold mb-1" style={{ color: "#000814" }}>
                           How can we help you today? 💛
@@ -881,102 +861,85 @@ export default function EnrollioSupportWidget() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={() => {
                             resetChatView()
                             setActiveTab("chat")
                           }}
-                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="hover-button p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
                           <MessageCircle className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Chat</div>
                             <div className="text-xs text-gray-500">Talk to Support</div>
                           </div>
-                        </motion.button>
+                        </button>
 
-                        <motion.button
-                          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={() => setActiveTab("news")}
-                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="hover-button p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
                           <Newspaper className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">News</div>
                             <div className="text-xs text-gray-500">Latest Updates</div>
                           </div>
-                        </motion.button>
+                        </button>
 
-                        <motion.button
-                          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={() => setActiveTab("roadmap")}
-                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="hover-button p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
                           <Map className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Roadmap</div>
                             <div className="text-xs text-gray-500">What's Coming</div>
                           </div>
-                        </motion.button>
+                        </button>
 
-                        <motion.button
-                          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={() => setActiveTab("requests")}
-                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="hover-button p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
                           <Lightbulb className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Requests</div>
                             <div className="text-xs text-gray-500">Share Ideas</div>
                           </div>
-                        </motion.button>
+                        </button>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={() => setActiveTab("help")}
-                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
+                          className="hover-button p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300]"
                         >
                           <HelpCircle className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Help Center</div>
                             <div className="text-xs text-gray-500">Browse Tutorials and FAQs</div>
                           </div>
-                        </motion.button>
+                        </button>
 
-                        <motion.a
+                        <a
                           href="https://enrollio.ai/express-setup"
                           target="_blank"
                           rel="noopener noreferrer"
-                          whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 195, 0, 0.3)" }}
-                          whileTap={{ scale: 0.98 }}
-                          className="p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300] block no-underline"
+                          className="hover-button p-3 rounded-xl border border-gray-200 transition-all bg-white hover:border-[#FFC300] block no-underline"
                         >
                           <Headphones className="h-5 w-5 mb-1.5" style={{ color: "#000814" }} />
                           <div className="text-left">
                             <div className="font-semibold text-black text-sm">Setup Assistance</div>
                             <div className="text-xs text-gray-500">Have our experts build out your account</div>
                           </div>
-                        </motion.a>
+                        </a>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Chat Tab */}
                   {activeTab === "chat" && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
+                    <div className="tab-content space-y-4">
                       <div>
                         <h3 className="text-lg font-semibold mb-1" style={{ color: "#000814" }}>
                           Chat with Enrollio Support 💬
@@ -995,12 +958,10 @@ export default function EnrollioSupportWidget() {
 
                               <div className="space-y-2 max-h-[200px] overflow-y-auto">
                                 {previousChats.map((chat) => (
-                                  <motion.button
+                                  <button
                                     key={chat.ticketId}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
                                     onClick={() => resumeChat(chat)}
-                                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-[#FFC300] transition-all text-left bg-white"
+                                    className="hover-card w-full p-3 rounded-lg border border-gray-200 hover:border-[#FFC300] transition-all text-left bg-white"
                                   >
                                     <div className="flex items-start justify-between gap-2">
                                       <div className="flex-1 min-w-0">
@@ -1031,7 +992,7 @@ export default function EnrollioSupportWidget() {
                                         </p>
                                       </div>
                                     </div>
-                                  </motion.button>
+                                  </button>
                                 ))}
                               </div>
 
@@ -1181,17 +1142,12 @@ export default function EnrollioSupportWidget() {
                           </div>
                         </>
                       )}
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* News Tab */}
                   {activeTab === "news" && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
+                    <div className="tab-content space-y-4">
                       {/* Article detail view */}
                       {selectedNewsArticle ? (
                         <>
@@ -1257,15 +1213,10 @@ export default function EnrollioSupportWidget() {
                           ) : (
                             <div className="space-y-3">
                               {newsArticles.map((article, index) => (
-                                <motion.div
-                                  key={article.id}
-                                  initial={{ opacity: 0, y: 10 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ delay: index * 0.05 }}
-                                >
+                                <div key={article.id} className="stagger-item">
                                   <Card
                                     onClick={() => setSelectedNewsArticle(article)}
-                                    className="transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer bg-white border-gray-200"
+                                    className="hover-card cursor-pointer bg-white border-gray-200"
                                     style={{
                                       borderLeft: "3px solid #FFC300",
                                     }}
@@ -1282,7 +1233,7 @@ export default function EnrollioSupportWidget() {
                                       </CardDescription>
                                     </CardHeader>
                                   </Card>
-                                </motion.div>
+                                </div>
                               ))}
                             </div>
                           )}
@@ -1292,17 +1243,12 @@ export default function EnrollioSupportWidget() {
                           </p>
                         </>
                       )}
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Roadmap Tab */}
                   {activeTab === "roadmap" && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
+                    <div className="tab-content space-y-4">
                       <div>
                         <h3 className="text-lg font-semibold mb-1" style={{ color: "#000814" }}>
                           Product Roadmap 🧭
@@ -1339,13 +1285,8 @@ export default function EnrollioSupportWidget() {
                           {roadmapFeatures.map((feature, index) => {
                             const mappedStatus = mapStatusToRoadmap(feature.status)
                             return (
-                              <motion.div
-                                key={feature.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                              >
-                                <Card className="transition-all hover:scale-[1.02] hover:shadow-lg bg-white border-gray-200">
+                              <div key={feature.id} className="stagger-item">
+                                <Card className="hover-card bg-white border-gray-200">
                                   <CardHeader className="pb-3">
                                     <div className="flex items-start justify-between gap-2">
                                       <div className="flex items-center gap-2">
@@ -1388,7 +1329,7 @@ export default function EnrollioSupportWidget() {
                                     </Button>
                                   </CardContent>
                                 </Card>
-                              </motion.div>
+                              </div>
                             )
                           })}
                         </div>
@@ -1409,17 +1350,12 @@ export default function EnrollioSupportWidget() {
                       <p className="text-xs text-center text-gray-500 pt-2">
                         Showing {roadmapFeatures.length} of {allRoadmapFeatures.length} roadmap items
                       </p>
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Feature Requests Tab */}
                   {activeTab === "requests" && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
+                    <div className="tab-content space-y-4">
                       <div>
                         <h3 className="text-lg font-semibold mb-1" style={{ color: "#000814" }}>
                           Share Your Ideas 💡
@@ -1428,72 +1364,56 @@ export default function EnrollioSupportWidget() {
                       </div>
 
                       {/* Error Notification */}
-                      <AnimatePresence>
-                        {featureError && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            transition={{ duration: 0.2 }}
+                      {featureError && (
+                        <div className="success-card">
+                          <Card
+                            className="p-4 text-center bg-white"
+                            style={{
+                              borderColor: "#DC2626",
+                              borderWidth: "2px",
+                            }}
                           >
-                            <Card
-                              className="p-4 text-center bg-white"
-                              style={{
-                                borderColor: "#DC2626",
-                                borderWidth: "2px",
-                              }}
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="text-2xl">⚠️</div>
-                                <div className="flex-1 text-left">
-                                  <h4 className="font-semibold mb-1" style={{ color: "#DC2626" }}>
-                                    Validation Error
-                                  </h4>
-                                  <p className="text-sm text-gray-700">{featureError}</p>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setFeatureError(null)}
-                                  className="h-6 w-6 p-0 -mt-1"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
+                            <div className="flex items-start gap-3">
+                              <div className="text-2xl">⚠️</div>
+                              <div className="flex-1 text-left">
+                                <h4 className="font-semibold mb-1" style={{ color: "#DC2626" }}>
+                                  Validation Error
+                                </h4>
+                                <p className="text-sm text-gray-700">{featureError}</p>
                               </div>
-                            </Card>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setFeatureError(null)}
+                                className="h-6 w-6 p-0 -mt-1"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </Card>
+                        </div>
+                      )}
 
-                      <AnimatePresence mode="wait">
-                        {submitted ? (
-                          <motion.div
-                            key="success"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
+                      {submitted ? (
+                        <div className="success-card">
+                          <Card
+                            className="p-6 text-center bg-white"
+                            style={{
+                              borderColor: "#FFC300",
+                              borderWidth: "2px",
+                            }}
                           >
-                            <Card
-                              className="p-6 text-center bg-white"
-                              style={{
-                                borderColor: "#FFC300",
-                                borderWidth: "2px",
-                              }}
-                            >
-                              <div className="text-4xl mb-3">✅</div>
-                              <h4 className="font-semibold mb-2" style={{ color: "#000814" }}>
-                                Thanks! Our team reviews feature requests weekly.
-                              </h4>
-                            </Card>
-                          </motion.div>
-                        ) : (
-                          <motion.form
-                            key="form"
-                            initial={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onSubmit={handleFeatureSubmit}
-                            className="space-y-3"
-                          >
+                            <div className="text-4xl mb-3">✅</div>
+                            <h4 className="font-semibold mb-2" style={{ color: "#000814" }}>
+                              Thanks! Our team reviews feature requests weekly.
+                            </h4>
+                          </Card>
+                        </div>
+                      ) : (
+                        <form
+                          onSubmit={handleFeatureSubmit}
+                          className="space-y-3"
+                        >
                             <div className="space-y-2">
                               <label className="text-sm font-medium" style={{ color: "#000814" }}>
                                 Title <span className="text-red-500">*</span>
@@ -1592,24 +1512,18 @@ export default function EnrollioSupportWidget() {
                                 "Submit Feature Request"
                               )}
                             </Button>
-                          </motion.form>
+                          </form>
                         )}
-                      </AnimatePresence>
 
                       <p className="text-xs text-center text-gray-500 pt-2">
                         Your feature request will be saved to our product board
                       </p>
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Help Tab */}
                   {activeTab === "help" && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
+                    <div className="tab-content space-y-4">
                       {/* Article view */}
                       {selectedArticle ? (
                         <>
@@ -1677,15 +1591,10 @@ export default function EnrollioSupportWidget() {
                                 </div>
                               ) : (
                                 helpArticles.map((article, index) => (
-                                  <motion.button
+                                  <button
                                     key={article.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
                                     onClick={() => setSelectedArticle(article)}
-                                    whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
-                                    whileTap={{ scale: 0.98 }}
-                                    className="w-full p-4 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
+                                    className="stagger-item hover-card w-full p-4 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300]"
                                   >
                                     <div className="space-y-2">
                                       <div className="flex items-start justify-between gap-3">
@@ -1703,7 +1612,7 @@ export default function EnrollioSupportWidget() {
                                         />
                                       )}
                                     </div>
-                                  </motion.button>
+                                  </button>
                                 ))
                               )}
                             </div>
@@ -1713,14 +1622,12 @@ export default function EnrollioSupportWidget() {
                                 Popular Topics
                               </h4>
                               {helpLinks.map((link, index) => (
-                                <motion.a
+                                <a
                                   key={index}
                                   href={link.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
-                                  whileTap={{ scale: 0.98 }}
-                                  className="block w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300] no-underline"
+                                  className="hover-card block w-full p-3 rounded-lg border border-gray-200 transition-all text-left bg-white hover:border-[#FFC300] no-underline"
                                 >
                                   <div className="flex items-center gap-3">
                                     <span className="text-xl">{link.icon}</span>
@@ -1729,7 +1636,7 @@ export default function EnrollioSupportWidget() {
                                     </span>
                                     <ExternalLink className="h-4 w-4 text-gray-400 ml-auto" />
                                   </div>
-                                </motion.a>
+                                </a>
                               ))}
                             </div>
                           )}
@@ -1739,7 +1646,7 @@ export default function EnrollioSupportWidget() {
                           </p>
                         </>
                       )}
-                    </motion.div>
+                    </div>
                   )}
                 </div>
               </ScrollArea>
@@ -1753,11 +1660,9 @@ export default function EnrollioSupportWidget() {
                 }}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => setActiveTab("home")}
-                    className={`flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
+                    className={`nav-button flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
                       activeTab === "home" ? "" : "hover:bg-gray-100"
                     }`}
                     style={{
@@ -1765,16 +1670,14 @@ export default function EnrollioSupportWidget() {
                     }}
                   >
                     <Home className="h-6 w-6" style={{ color: activeTab === "home" ? "#000814" : "#4B5563" }} />
-                  </motion.button>
+                  </button>
 
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => {
                       resetChatView()
                       setActiveTab("chat")
                     }}
-                    className={`flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
+                    className={`nav-button flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
                       activeTab === "chat" ? "" : "hover:bg-gray-100"
                     }`}
                     style={{
@@ -1785,13 +1688,11 @@ export default function EnrollioSupportWidget() {
                       className="h-6 w-6"
                       style={{ color: activeTab === "chat" ? "#000814" : "#4B5563" }}
                     />
-                  </motion.button>
+                  </button>
 
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => setActiveTab("news")}
-                    className={`flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
+                    className={`nav-button flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
                       activeTab === "news" ? "" : "hover:bg-gray-100"
                     }`}
                     style={{
@@ -1799,13 +1700,11 @@ export default function EnrollioSupportWidget() {
                     }}
                   >
                     <Newspaper className="h-6 w-6" style={{ color: activeTab === "news" ? "#000814" : "#4B5563" }} />
-                  </motion.button>
+                  </button>
 
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => setActiveTab("roadmap")}
-                    className={`flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
+                    className={`nav-button flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
                       activeTab === "roadmap" ? "" : "hover:bg-gray-100"
                     }`}
                     style={{
@@ -1813,13 +1712,11 @@ export default function EnrollioSupportWidget() {
                     }}
                   >
                     <Map className="h-6 w-6" style={{ color: activeTab === "roadmap" ? "#000814" : "#4B5563" }} />
-                  </motion.button>
+                  </button>
 
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => setActiveTab("help")}
-                    className={`flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
+                    className={`nav-button flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all ${
                       activeTab === "help" ? "" : "hover:bg-gray-100"
                     }`}
                     style={{
@@ -1827,15 +1724,13 @@ export default function EnrollioSupportWidget() {
                     }}
                   >
                     <HelpCircle className="h-6 w-6" style={{ color: activeTab === "help" ? "#000814" : "#4B5563" }} />
-                  </motion.button>
+                  </button>
                 </div>
               </div>
             </>
           )}
         </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   )
 }

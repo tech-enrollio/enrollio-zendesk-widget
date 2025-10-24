@@ -303,6 +303,19 @@ export default function EnrollioSupportWidget() {
     }
   }, [previousChats, chatName, chatEmail])
 
+  // Send resize message to parent when widget opens/closes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.parent !== window) {
+      const width = isOpen ? '450px' : '80px';
+      const height = isOpen ? '680px' : '80px';
+      window.parent.postMessage({
+        type: 'enrollio-widget-resize',
+        width,
+        height
+      }, '*');
+    }
+  }, [isOpen])
+
   // Save chat session to localStorage
   const saveChatToLocal = (session: ChatSession) => {
     try {
@@ -758,13 +771,19 @@ export default function EnrollioSupportWidget() {
   }
 
   return (
-    <div className="fixed right-6 z-50 font-sans max-h-screen" style={{ bottom: "36px" }}>
+    <div
+      className="fixed right-6 z-50 font-sans max-h-screen"
+      style={{
+        bottom: "36px",
+        pointerEvents: isOpen ? "auto" : "none"
+      }}
+    >
       <AnimatePresence mode="wait">
         {!isOpen ? (
           // Floating Action Button
           <motion.button
             key="fab"
-            initial={{ opacity: 0, scale: 0 }}
+            initial={{ opacity: 1, scale: 1 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
             transition={{ type: "spring", stiffness: 600, damping: 20, mass: 0.5 }}
@@ -772,7 +791,10 @@ export default function EnrollioSupportWidget() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
             className="w-16 h-16 rounded-full shadow-2xl flex items-center justify-center cursor-pointer border-none"
-            style={{ backgroundColor: "#FFC300" }}
+            style={{
+              backgroundColor: "#FFC300",
+              pointerEvents: "auto"
+            }}
             aria-label="Open Enrollio Support Widget"
           >
             <img

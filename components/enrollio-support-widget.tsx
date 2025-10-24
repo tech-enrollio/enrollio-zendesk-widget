@@ -758,7 +758,7 @@ export default function EnrollioSupportWidget() {
   }
 
   return (
-    <div className="fixed bottom-4 right-6 z-50 font-sans max-h-screen">
+    <div className="fixed right-6 z-50 font-sans max-h-screen" style={{ bottom: "36px" }}>
       <AnimatePresence mode="wait">
         {!isOpen ? (
           // Floating Action Button

@@ -778,7 +778,7 @@ export default function EnrollioSupportWidget() {
             <img
               src="/enrollio-logo.png"
               alt="Support"
-              className="h-10 w-10 rounded-full"
+              className="h-12 w-12 rounded-full"
             />
           </motion.button>
         ) : (

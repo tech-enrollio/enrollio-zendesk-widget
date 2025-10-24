@@ -787,11 +787,10 @@ export default function EnrollioSupportWidget() {
             transition={{ type: "spring", stiffness: 700, damping: 25, mass: 0.5 }}
           >
             <Card
-          className="w-[400px] shadow-2xl transition-all duration-300 ease-in-out bg-white border-gray-200"
+          className="w-[400px] transition-all duration-300 ease-in-out bg-white border-gray-200"
           style={{
             borderRadius: "20px",
             height: isMinimized ? "60px" : "600px",
-            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
           }}
         >
           {/* Header */}

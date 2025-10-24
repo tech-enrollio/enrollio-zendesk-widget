@@ -758,7 +758,7 @@ export default function EnrollioSupportWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className="fixed bottom-4 right-6 z-50 font-sans max-h-screen">
       <AnimatePresence mode="wait">
         {!isOpen ? (
           // Floating Action Button
@@ -790,7 +790,7 @@ export default function EnrollioSupportWidget() {
           className="w-[400px] transition-all duration-300 ease-in-out bg-white border-gray-200"
           style={{
             borderRadius: "20px",
-            height: isMinimized ? "60px" : "600px",
+            height: isMinimized ? "60px" : "min(600px, calc(100vh - 32px))",
           }}
         >
           {/* Header */}

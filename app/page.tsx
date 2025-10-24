@@ -1,7 +1,5 @@
 "use client"
 
-import EnrollioSupportWidget from "@/components/enrollio-support-widget"
-
 export default function Home() {
   return (
     <>
@@ -82,9 +80,6 @@ export default function Home() {
           Test Button 3
         </button>
       </div>
-
-      {/* Widget */}
-      <EnrollioSupportWidget />
     </>
   )
 }

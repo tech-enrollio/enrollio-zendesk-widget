@@ -24,6 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-transparent">
+      <head>
+        <script src="https://enrollio-zendesk-widget.vercel.app/widget-install.js" async></script>
+      </head>
       <body className={`font-sans ${inter.variable} bg-transparent`}>
         <Suspense fallback={null}>{children}</Suspense>
         <Analytics />

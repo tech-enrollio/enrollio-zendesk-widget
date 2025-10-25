@@ -771,7 +771,14 @@ export default function EnrollioSupportWidget() {
 
   return (
     <div
-      className="fixed right-0 top-0 z-50 font-sans"
+      className="font-sans"
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end'
+      }}
     >
       {/* Floating Action Button */}
       <button

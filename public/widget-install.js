@@ -7,7 +7,9 @@
 
   // Configuration
   const CONFIG = {
-    widgetUrl: 'https://enrollio-zendesk-widget.vercel.app/widget',
+    widgetUrl: window.location.hostname === 'localhost'
+      ? 'http://localhost:3000/widget'
+      : 'https://enrollio-zendesk-widget.vercel.app/widget',
     position: {
       bottom: '20px',
       right: '20px'
@@ -137,15 +139,18 @@
 
     open() {
       this.isOpen = true;
+      console.log('[Widget] Opening widget...');
 
       // Move widget into position and show with animation
       this.widget.style.bottom = CONFIG.position.bottom;
       this.widget.style.right = CONFIG.position.right;
+      console.log('[Widget] Moved to position:', CONFIG.position.bottom, CONFIG.position.right);
 
       // Use setTimeout to ensure position is set before animating
       setTimeout(() => {
         this.widget.style.opacity = '1';
         this.widget.style.pointerEvents = 'auto';
+        console.log('[Widget] Opacity set to 1, pointer-events: auto');
       }, 10);
 
       // Hide FAB
@@ -157,16 +162,21 @@
 
     close() {
       this.isOpen = false;
+      console.log('[Widget] Closing widget...');
 
       // Hide widget with animation
       this.widget.style.opacity = '0';
       this.widget.style.pointerEvents = 'none';
+      console.log('[Widget] Opacity set to 0, pointer-events: none');
 
       // Move widget off-screen after animation completes
       setTimeout(() => {
         if (!this.isOpen) {  // Only if still closed
           this.widget.style.bottom = '-9999px';
           this.widget.style.right = '-9999px';
+          console.log('[Widget] Moved off-screen to -9999px');
+        } else {
+          console.log('[Widget] Widget was reopened, skipping off-screen move');
         }
       }, 300);
 
@@ -186,7 +196,9 @@
 
   // Initialize when DOM is ready
   function init() {
+    console.log('[Widget] Initializing Enrollio Widget...');
     WidgetManager.init();
+    console.log('[Widget] Widget initialized. Initial state: closed, position: -9999px');
   }
 
   if (document.readyState === 'loading') {

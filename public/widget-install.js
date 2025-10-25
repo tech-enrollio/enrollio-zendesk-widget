@@ -60,6 +60,7 @@
     z-index: 999999;
     display: none;
     pointer-events: none;
+    visibility: hidden;
   `;
 
   // Create iframe
@@ -91,6 +92,7 @@
 
     // Show widget container and enable pointer events
     widgetContainer.style.display = 'block';
+    widgetContainer.style.visibility = 'visible';
     widgetContainer.style.pointerEvents = 'auto';
 
     iframe.contentWindow.postMessage({ action: 'open' }, '*');
@@ -104,6 +106,7 @@
 
       // Hide widget container and disable pointer events
       widgetContainer.style.display = 'none';
+      widgetContainer.style.visibility = 'hidden';
       widgetContainer.style.pointerEvents = 'none';
     }
   });
@@ -129,6 +132,7 @@
 
       // Show widget container and enable pointer events
       widgetContainer.style.display = 'block';
+      widgetContainer.style.visibility = 'visible';
       widgetContainer.style.pointerEvents = 'auto';
 
       iframe.contentWindow.postMessage({ action: 'open' }, '*');
@@ -139,6 +143,7 @@
 
       // Hide widget container and disable pointer events
       widgetContainer.style.display = 'none';
+      widgetContainer.style.visibility = 'hidden';
       widgetContainer.style.pointerEvents = 'none';
 
       iframe.contentWindow.postMessage({ action: 'close' }, '*');

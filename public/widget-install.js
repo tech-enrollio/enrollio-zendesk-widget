@@ -13,26 +13,18 @@
     position: fixed;
     bottom: 36px;
     right: 24px;
-    width: 64px;
-    height: 64px;
     z-index: 999999;
-    pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
-  // Create iframe
+  // Create iframe - starts small for FAB, will resize based on widget state
   const iframe = document.createElement('iframe');
   iframe.id = 'enrollio-support-widget-iframe';
   iframe.src = WIDGET_URL;
   iframe.style.cssText = `
     border: none;
-    position: fixed;
-    bottom: 36px;
-    right: 24px;
     width: 64px;
     height: 64px;
-    z-index: 999999;
-    pointer-events: auto;
     background: transparent;
   `;
 
@@ -40,16 +32,15 @@
   iframe.setAttribute('allow', 'clipboard-write');
   iframe.setAttribute('title', 'Enrollio Support Widget');
 
-  // Listen for messages from widget to resize
+  // Listen for resize messages from widget
   window.addEventListener('message', function(event) {
-    if (event.origin !== WIDGET_URL) return;
+    // Verify origin if needed for security
+    // if (event.origin !== WIDGET_URL) return;
 
-    if (event.data.type === 'enrollio-widget-resize') {
+    if (event.data && event.data.type === 'resize') {
       const { width, height } = event.data;
-      iframe.style.width = width;
-      iframe.style.height = height;
-      container.style.width = width;
-      container.style.height = height;
+      iframe.style.width = width + 'px';
+      iframe.style.height = height + 'px';
     }
   });
 

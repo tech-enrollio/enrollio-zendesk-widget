@@ -50,6 +50,7 @@
     height: 600px;
     background: transparent;
     display: none;
+    pointer-events: none;
     z-index: 999999;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
@@ -66,8 +67,9 @@
     isOpen = true;
     fab.style.display = 'none';
 
-    // Show iframe
+    // Show iframe and enable interactions
     iframe.style.display = 'block';
+    iframe.style.pointerEvents = 'auto';
 
     iframe.contentWindow.postMessage({ action: 'open' }, '*');
   });
@@ -78,8 +80,9 @@
       isOpen = false;
       fab.style.display = 'flex';
 
-      // Hide iframe
+      // Hide iframe and disable interactions
       iframe.style.display = 'none';
+      iframe.style.pointerEvents = 'none';
     }
   });
 
@@ -102,8 +105,9 @@
       isOpen = true;
       fab.style.display = 'none';
 
-      // Show iframe
+      // Show iframe and enable interactions
       iframe.style.display = 'block';
+      iframe.style.pointerEvents = 'auto';
 
       iframe.contentWindow.postMessage({ action: 'open' }, '*');
     },
@@ -111,8 +115,9 @@
       isOpen = false;
       fab.style.display = 'flex';
 
-      // Hide iframe
+      // Hide iframe and disable interactions
       iframe.style.display = 'none';
+      iframe.style.pointerEvents = 'none';
 
       iframe.contentWindow.postMessage({ action: 'close' }, '*');
     },

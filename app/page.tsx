@@ -84,16 +84,7 @@ export default function Home() {
       </div>
 
       {/* Render widget directly for local testing */}
-      <div style={{
-        position: 'fixed',
-        bottom: '36px',
-        right: '24px',
-        width: '64px',
-        height: '64px',
-        zIndex: 999999
-      }}>
-        <EnrollioSupportWidget />
-      </div>
+      <EnrollioSupportWidget />
     </>
   )
 }

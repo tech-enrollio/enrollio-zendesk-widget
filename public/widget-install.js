@@ -58,8 +58,10 @@
 
     // Add icon
     const icon = document.createElement('img');
-    icon.src = 'https://storage.googleapis.com/msgsndr/t34wsZgFiq6fyBrps0Ps/media/68e7abeba54d88c1ec18f4d0.png';
-    icon.alt = 'Support';
+    icon.src = window.location.hostname === 'localhost'
+      ? '/enrollio-logo.png'
+      : 'https://enrollio-zendesk-widget.vercel.app/enrollio-logo.png';
+    icon.alt = 'Enrollio Support';
     icon.style.cssText = `
       width: 40px;
       height: 40px;

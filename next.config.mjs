@@ -26,6 +26,10 @@ const nextConfig = {
             key: 'Content-Type',
             value: 'application/javascript',
           },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
         ],
       },
     ]

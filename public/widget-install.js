@@ -1,169 +1,180 @@
 (function() {
+  'use strict';
+
   // Prevent multiple initializations
   if (window.EnrollioWidgetLoaded) return;
   window.EnrollioWidgetLoaded = true;
 
   // Configuration
-  const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app/widget'; // Widget iframe URL
-
-  // Create FAB container - minimal size (FAB button + 5px)
-  // Container allows clicks to pass through everywhere except the button itself
-  const fabContainer = document.createElement('div');
-  fabContainer.id = 'enrollio-fab-container';
-  fabContainer.style.cssText = `
-    position: fixed;
-    bottom: 36px;
-    right: 24px;
-    width: 69px;
-    height: 69px;
-    z-index: 999;
-    pointer-events: none !important;
-  `;
-
-  // Create FAB button (in parent page, always visible)
-  const fab = document.createElement('button');
-  fab.id = 'enrollio-support-fab';
-  fab.setAttribute('aria-label', 'Open Enrollio Support Widget');
-  fab.style.cssText = `
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background-color: #FFC300;
-    border: none;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    padding: 0;
-    pointer-events: auto !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  `;
-
-  // Add Enrollio logo to FAB
-  const fabImg = document.createElement('img');
-  fabImg.src = 'https://storage.googleapis.com/msgsndr/t34wsZgFiq6fyBrps0Ps/media/68e7abeba54d88c1ec18f4d0.png';
-  fabImg.alt = 'Support';
-  fabImg.style.cssText = 'width: 48px; height: 48px; border-radius: 50%;';
-  fab.appendChild(fabImg);
-  fabContainer.appendChild(fab);
-
-  // Create widget container - completely separate from FAB
-  // When collapsed: clicks pass through (pointer-events: none)
-  // When opened: clicks captured (pointer-events: auto)
-  const widgetContainer = document.createElement('div');
-  widgetContainer.id = 'enrollio-widget-container';
-  widgetContainer.style.cssText = `
-    position: fixed;
-    bottom: 36px;
-    right: 24px;
-    width: 400px;
-    height: 600px;
-    z-index: 999999;
-    display: none;
-    pointer-events: none !important;
-    visibility: hidden;
-  `;
-
-  // Create iframe
-  const iframe = document.createElement('iframe');
-  iframe.id = 'enrollio-support-widget-iframe';
-  iframe.src = WIDGET_URL;
-  iframe.style.cssText = `
-    border: none;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    display: block;
-    pointer-events: auto !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  `;
-
-  // Allow iframe to be interactive
-  iframe.setAttribute('allow', 'clipboard-write');
-  iframe.setAttribute('title', 'Enrollio Support Widget');
-  widgetContainer.appendChild(iframe);
-
-  // Track widget state
-  let isOpen = false;
-
-  // FAB click handler
-  fab.addEventListener('click', function() {
-    isOpen = true;
-    fabContainer.style.display = 'none';
-
-    // Show widget container and enable pointer events
-    widgetContainer.style.display = 'block';
-    widgetContainer.style.visibility = 'visible';
-    widgetContainer.style.setProperty('pointer-events', 'auto', 'important');
-
-    iframe.contentWindow.postMessage({ action: 'open' }, '*');
-  });
-
-  // Listen for close messages from widget
-  window.addEventListener('message', function(event) {
-    if (event.data && event.data.action === 'close') {
-      isOpen = false;
-      fabContainer.style.display = 'block';
-
-      // Hide widget container and disable pointer events
-      widgetContainer.style.display = 'none';
-      widgetContainer.style.visibility = 'hidden';
-      widgetContainer.style.setProperty('pointer-events', 'none', 'important');
+  const CONFIG = {
+    widgetUrl: 'https://enrollio-zendesk-widget.vercel.app/widget',
+    position: {
+      bottom: '20px',
+      right: '20px'
+    },
+    fabSize: 60,
+    widgetSize: {
+      width: 400,
+      height: 600
     }
-  });
+  };
 
-  // Append to body when DOM is ready
-  function init() {
-    document.body.appendChild(fabContainer);
-    document.body.appendChild(widgetContainer);
+  // Create FAB (Floating Action Button)
+  function createFAB() {
+    const button = document.createElement('button');
+    button.id = 'enrollio-fab';
+    button.setAttribute('aria-label', 'Open Support Chat');
+    button.style.cssText = `
+      position: fixed;
+      bottom: ${CONFIG.position.bottom};
+      right: ${CONFIG.position.right};
+      width: ${CONFIG.fabSize}px;
+      height: ${CONFIG.fabSize}px;
+      border-radius: 50%;
+      background: #FFC300;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 2147483647;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    `;
+
+    // Hover effect
+    button.onmouseenter = () => {
+      button.style.transform = 'scale(1.05)';
+      button.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
+    };
+    button.onmouseleave = () => {
+      button.style.transform = 'scale(1)';
+      button.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    };
+
+    // Add icon
+    const icon = document.createElement('img');
+    icon.src = 'https://storage.googleapis.com/msgsndr/t34wsZgFiq6fyBrps0Ps/media/68e7abeba54d88c1ec18f4d0.png';
+    icon.alt = 'Support';
+    icon.style.cssText = `
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    `;
+    button.appendChild(icon);
+
+    return button;
   }
 
+  // Create Widget Container
+  function createWidget() {
+    const container = document.createElement('div');
+    container.id = 'enrollio-widget';
+    container.style.cssText = `
+      position: fixed;
+      bottom: ${CONFIG.position.bottom};
+      right: ${CONFIG.position.right};
+      width: ${CONFIG.widgetSize.width}px;
+      height: ${CONFIG.widgetSize.height}px;
+      z-index: 2147483646;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+    `;
+
+    // Create iframe
+    const iframe = document.createElement('iframe');
+    iframe.id = 'enrollio-widget-iframe';
+    iframe.src = CONFIG.widgetUrl;
+    iframe.style.cssText = `
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    `;
+    iframe.setAttribute('allow', 'clipboard-write');
+    iframe.setAttribute('title', 'Enrollio Support Widget');
+
+    container.appendChild(iframe);
+    return { container, iframe };
+  }
+
+  // Widget State Manager
+  const WidgetManager = {
+    isOpen: false,
+    fab: null,
+    widget: null,
+    iframe: null,
+
+    init() {
+      // Create elements
+      this.fab = createFAB();
+      const widgetObj = createWidget();
+      this.widget = widgetObj.container;
+      this.iframe = widgetObj.iframe;
+
+      // Add event listeners
+      this.fab.addEventListener('click', () => this.toggle());
+      window.addEventListener('message', (e) => this.handleMessage(e));
+
+      // Append to DOM
+      document.body.appendChild(this.fab);
+      document.body.appendChild(this.widget);
+    },
+
+    toggle() {
+      if (this.isOpen) {
+        this.close();
+      } else {
+        this.open();
+      }
+    },
+
+    open() {
+      this.isOpen = true;
+      this.widget.style.display = 'block';
+      this.fab.style.display = 'none';
+
+      // Notify iframe
+      this.iframe.contentWindow.postMessage({ action: 'open' }, '*');
+    },
+
+    close() {
+      this.isOpen = false;
+      this.widget.style.display = 'none';
+      this.fab.style.display = 'flex';
+
+      // Notify iframe
+      this.iframe.contentWindow.postMessage({ action: 'close' }, '*');
+    },
+
+    handleMessage(event) {
+      if (event.data && event.data.action === 'close') {
+        this.close();
+      }
+    }
+  };
+
   // Initialize when DOM is ready
+  function init() {
+    WidgetManager.init();
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
 
-  // Global API for controlling the widget
+  // Global API
   window.EnrollioWidget = {
-    open: function() {
-      isOpen = true;
-      fabContainer.style.display = 'none';
-
-      // Show widget container and enable pointer events
-      widgetContainer.style.display = 'block';
-      widgetContainer.style.visibility = 'visible';
-      widgetContainer.style.setProperty('pointer-events', 'auto', 'important');
-
-      iframe.contentWindow.postMessage({ action: 'open' }, '*');
-    },
-    close: function() {
-      isOpen = false;
-      fabContainer.style.display = 'block';
-
-      // Hide widget container and disable pointer events
-      widgetContainer.style.display = 'none';
-      widgetContainer.style.visibility = 'hidden';
-      widgetContainer.style.setProperty('pointer-events', 'none', 'important');
-
-      iframe.contentWindow.postMessage({ action: 'close' }, '*');
-    },
-    toggle: function() {
-      if (isOpen) {
-        this.close();
-      } else {
-        this.open();
-      }
-    },
-    // Expose containers for custom styling
-    getFabContainer: function() {
-      return fabContainer;
-    },
-    getWidgetContainer: function() {
-      return widgetContainer;
-    }
+    open: () => WidgetManager.open(),
+    close: () => WidgetManager.close(),
+    toggle: () => WidgetManager.toggle(),
+    isOpen: () => WidgetManager.isOpen
   };
+
 })();

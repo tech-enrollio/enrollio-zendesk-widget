@@ -120,7 +120,7 @@ interface ChatSession {
 }
 
 export default function EnrollioSupportWidget() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true) // Always open in iframe (FAB is in parent)
   const [isMinimized, setIsMinimized] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>("home")
   const [message, setMessage] = useState("")
@@ -303,17 +303,19 @@ export default function EnrollioSupportWidget() {
     }
   }, [previousChats, chatName, chatEmail])
 
-  // Send resize messages to parent window when widget opens/closes
+  // Listen for open/close messages from parent
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.parent) {
-      const message = {
-        type: 'resize',
-        width: isOpen ? 400 : 64,
-        height: isOpen ? 600 : 64
-      };
-      window.parent.postMessage(message, '*');
-    }
-  }, [isOpen]);
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.action === 'open') {
+        setIsOpen(true);
+      } else if (event.data && event.data.action === 'close') {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   // Save chat session to localStorage
   const saveChatToLocal = (session: ChatSession) => {
@@ -769,32 +771,25 @@ export default function EnrollioSupportWidget() {
     }
   }
 
+  const handleClose = () => {
+    // Send close message to parent window
+    if (typeof window !== 'undefined' && window.parent) {
+      window.parent.postMessage({ action: 'close' }, '*');
+    }
+    setIsOpen(false);
+  };
+
   return (
     <div
       className="font-sans"
       style={{
-        position: 'fixed',
-        bottom: '36px',
-        right: '24px',
-        zIndex: 999999
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end'
       }}
     >
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`fab-button w-16 h-16 rounded-full shadow-2xl flex items-center justify-center cursor-pointer border-none ${!isOpen ? '' : 'hidden'}`}
-        style={{
-          backgroundColor: "#FFC300"
-        }}
-        aria-label="Open Enrollio Support Widget"
-      >
-        <img
-          src="/enrollio-logo.png"
-          alt="Support"
-          className="h-12 w-12 rounded-full"
-        />
-      </button>
-
       {/* Full Widget */}
       <div className={`widget-container ${isOpen ? '' : 'hidden'}`}>
             <Card
@@ -837,7 +832,7 @@ export default function EnrollioSupportWidget() {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-gray-500 hover:text-black hover:bg-gray-100 transition-all"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
               >
                 <X className="h-4 w-4" />
               </Button>

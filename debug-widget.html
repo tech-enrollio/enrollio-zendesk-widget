@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widget Debug</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+    .debug-info {
+      background: #f0f0f0;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .button-test {
+      position: fixed;
+      right: 40px;
+      top: 50%;
+      padding: 20px 80px;
+      background: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Widget Debug Page</h1>
+  <div class="debug-info" id="debug"></div>
+
+  <button class="button-test" onclick="alert('Button clicked!')">Test Button</button>
+
+  <!-- Load widget locally -->
+  <script src="/widget-install.js"></script>
+
+  <script>
+    // Debug script to check widget elements
+    setTimeout(() => {
+      const debug = document.getElementById('debug');
+      const fab = document.getElementById('enrollio-fab');
+      const widget = document.getElementById('enrollio-widget');
+
+      let info = '<h3>Widget Debug Info:</h3>';
+
+      if (fab) {
+        const fabStyles = window.getComputedStyle(fab);
+        info += `<p><strong>FAB:</strong></p>`;
+        info += `- Position: ${fabStyles.position}<br>`;
+        info += `- Z-Index: ${fabStyles.zIndex}<br>`;
+        info += `- Bottom: ${fabStyles.bottom}<br>`;
+        info += `- Right: ${fabStyles.right}<br>`;
+        info += `- Display: ${fabStyles.display}<br>`;
+      } else {
+        info += '<p><strong>FAB:</strong> NOT FOUND</p>';
+      }
+
+      if (widget) {
+        const widgetStyles = window.getComputedStyle(widget);
+        info += `<p><strong>Widget Container:</strong></p>`;
+        info += `- Position: ${widgetStyles.position}<br>`;
+        info += `- Z-Index: ${widgetStyles.zIndex}<br>`;
+        info += `- Bottom: ${widgetStyles.bottom}<br>`;
+        info += `- Right: ${widgetStyles.right}<br>`;
+        info += `- Width: ${widgetStyles.width}<br>`;
+        info += `- Height: ${widgetStyles.height}<br>`;
+        info += `- Opacity: ${widgetStyles.opacity}<br>`;
+        info += `- Pointer-Events: ${widgetStyles.pointerEvents}<br>`;
+        info += `- Transform: ${widgetStyles.transform}<br>`;
+      } else {
+        info += '<p><strong>Widget:</strong> NOT FOUND</p>';
+      }
+
+      debug.innerHTML = info;
+    }, 1000);
+  </script>
+</body>
+</html>

@@ -6,14 +6,22 @@
   // Configuration
   const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app/widget'; // Widget iframe URL
 
-  // Create FAB button (in parent page, always visible) - positioned independently
+  // Create FAB container
+  const fabContainer = document.createElement('div');
+  fabContainer.id = 'enrollio-fab-container';
+  fabContainer.style.cssText = `
+    position: fixed;
+    bottom: 36px;
+    right: 24px;
+    z-index: 999;
+    pointer-events: none;
+  `;
+
+  // Create FAB button (in parent page, always visible)
   const fab = document.createElement('button');
   fab.id = 'enrollio-support-fab';
   fab.setAttribute('aria-label', 'Open Enrollio Support Widget');
   fab.style.cssText = `
-    position: fixed;
-    bottom: 36px;
-    right: 24px;
     width: 64px;
     height: 64px;
     border-radius: 50%;
@@ -26,7 +34,7 @@
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     padding: 0;
-    z-index: 999;
+    pointer-events: auto;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
@@ -36,28 +44,36 @@
   fabImg.alt = 'Support';
   fabImg.style.cssText = 'width: 48px; height: 48px; border-radius: 50%;';
   fab.appendChild(fabImg);
+  fabContainer.appendChild(fab);
 
-  // Create iframe - positioned independently, starts hidden
+  // Create widget container
+  const widgetContainer = document.createElement('div');
+  widgetContainer.id = 'enrollio-widget-container';
+  widgetContainer.style.cssText = `
+    position: fixed;
+    bottom: 36px;
+    right: 24px;
+    z-index: 999999;
+    display: none;
+  `;
+
+  // Create iframe
   const iframe = document.createElement('iframe');
   iframe.id = 'enrollio-support-widget-iframe';
   iframe.src = WIDGET_URL;
   iframe.style.cssText = `
-    position: fixed;
-    bottom: 36px;
-    right: 24px;
     border: none;
     width: 400px;
     height: 600px;
     background: transparent;
-    display: none;
-    pointer-events: none;
-    z-index: 999999;
+    display: block;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
   // Allow iframe to be interactive
   iframe.setAttribute('allow', 'clipboard-write');
   iframe.setAttribute('title', 'Enrollio Support Widget');
+  widgetContainer.appendChild(iframe);
 
   // Track widget state
   let isOpen = false;
@@ -65,11 +81,8 @@
   // FAB click handler
   fab.addEventListener('click', function() {
     isOpen = true;
-    fab.style.display = 'none';
-
-    // Show iframe and enable interactions
-    iframe.style.display = 'block';
-    iframe.style.pointerEvents = 'auto';
+    fabContainer.style.display = 'none';
+    widgetContainer.style.display = 'block';
 
     iframe.contentWindow.postMessage({ action: 'open' }, '*');
   });
@@ -78,18 +91,15 @@
   window.addEventListener('message', function(event) {
     if (event.data && event.data.action === 'close') {
       isOpen = false;
-      fab.style.display = 'flex';
-
-      // Hide iframe and disable interactions
-      iframe.style.display = 'none';
-      iframe.style.pointerEvents = 'none';
+      fabContainer.style.display = 'block';
+      widgetContainer.style.display = 'none';
     }
   });
 
   // Append to body when DOM is ready
   function init() {
-    document.body.appendChild(fab);
-    document.body.appendChild(iframe);
+    document.body.appendChild(fabContainer);
+    document.body.appendChild(widgetContainer);
   }
 
   // Initialize when DOM is ready
@@ -103,21 +113,15 @@
   window.EnrollioWidget = {
     open: function() {
       isOpen = true;
-      fab.style.display = 'none';
-
-      // Show iframe and enable interactions
-      iframe.style.display = 'block';
-      iframe.style.pointerEvents = 'auto';
+      fabContainer.style.display = 'none';
+      widgetContainer.style.display = 'block';
 
       iframe.contentWindow.postMessage({ action: 'open' }, '*');
     },
     close: function() {
       isOpen = false;
-      fab.style.display = 'flex';
-
-      // Hide iframe and disable interactions
-      iframe.style.display = 'none';
-      iframe.style.pointerEvents = 'none';
+      fabContainer.style.display = 'block';
+      widgetContainer.style.display = 'none';
 
       iframe.contentWindow.postMessage({ action: 'close' }, '*');
     },
@@ -127,6 +131,13 @@
       } else {
         this.open();
       }
+    },
+    // Expose containers for custom styling
+    getFabContainer: function() {
+      return fabContainer;
+    },
+    getWidgetContainer: function() {
+      return widgetContainer;
     }
   };
 })();

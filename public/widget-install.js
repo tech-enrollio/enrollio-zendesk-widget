@@ -78,7 +78,10 @@
       width: ${CONFIG.widgetSize.width}px;
       height: ${CONFIG.widgetSize.height}px;
       z-index: 2147483646;
-      display: none;
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
       border-radius: 12px;
       overflow: hidden;
@@ -135,7 +138,13 @@
 
     open() {
       this.isOpen = true;
-      this.widget.style.display = 'block';
+
+      // Show widget with animation
+      this.widget.style.opacity = '1';
+      this.widget.style.transform = 'translateY(0) scale(1)';
+      this.widget.style.pointerEvents = 'auto';
+
+      // Hide FAB
       this.fab.style.display = 'none';
 
       // Notify iframe
@@ -144,7 +153,13 @@
 
     close() {
       this.isOpen = false;
-      this.widget.style.display = 'none';
+
+      // Hide widget with animation
+      this.widget.style.opacity = '0';
+      this.widget.style.transform = 'translateY(20px) scale(0.95)';
+      this.widget.style.pointerEvents = 'none';
+
+      // Show FAB
       this.fab.style.display = 'flex';
 
       // Notify iframe

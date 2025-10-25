@@ -6,7 +6,7 @@
   // Configuration
   const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app/widget'; // Widget iframe URL
 
-  // Create widget container
+  // Create widget container - starts small (just FAB size)
   const container = document.createElement('div');
   container.id = 'enrollio-support-widget-container';
   container.style.cssText = `
@@ -14,6 +14,8 @@
     bottom: 36px;
     right: 24px;
     z-index: 999999;
+    width: 64px;
+    height: 64px;
     pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
@@ -45,21 +47,21 @@
   fabImg.style.cssText = 'width: 48px; height: 48px; border-radius: 50%;';
   fab.appendChild(fabImg);
 
-  // Create iframe - starts hidden with opacity 0
+  // Create iframe - starts hidden with 0 dimensions
   const iframe = document.createElement('iframe');
   iframe.id = 'enrollio-support-widget-iframe';
   iframe.src = WIDGET_URL;
   iframe.style.cssText = `
     border: none;
-    width: 400px;
-    height: 600px;
+    width: 0;
+    height: 0;
     background: transparent;
     position: absolute;
     bottom: 0;
     right: 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, width 0s 0.3s, height 0s 0.3s;
   `;
 
   // Allow iframe to be interactive
@@ -73,8 +75,16 @@
   fab.addEventListener('click', function() {
     isOpen = true;
     fab.style.display = 'none';
+
+    // Expand container and iframe
+    container.style.width = '400px';
+    container.style.height = '600px';
+    iframe.style.width = '400px';
+    iframe.style.height = '600px';
+    iframe.style.transition = 'opacity 0.3s ease';
     iframe.style.opacity = '1';
     iframe.style.pointerEvents = 'auto';
+
     iframe.contentWindow.postMessage({ action: 'open' }, '*');
   });
 
@@ -83,8 +93,18 @@
     if (event.data && event.data.action === 'close') {
       isOpen = false;
       fab.style.display = 'flex';
+
+      // Collapse iframe first (with transition)
       iframe.style.opacity = '0';
       iframe.style.pointerEvents = 'none';
+
+      // Then collapse container and iframe size after opacity transition
+      setTimeout(function() {
+        container.style.width = '64px';
+        container.style.height = '64px';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+      }, 300);
     }
   });
 
@@ -107,15 +127,34 @@
     open: function() {
       isOpen = true;
       fab.style.display = 'none';
+
+      // Expand container and iframe
+      container.style.width = '400px';
+      container.style.height = '600px';
+      iframe.style.width = '400px';
+      iframe.style.height = '600px';
+      iframe.style.transition = 'opacity 0.3s ease';
       iframe.style.opacity = '1';
       iframe.style.pointerEvents = 'auto';
+
       iframe.contentWindow.postMessage({ action: 'open' }, '*');
     },
     close: function() {
       isOpen = false;
       fab.style.display = 'flex';
+
+      // Collapse iframe first (with transition)
       iframe.style.opacity = '0';
       iframe.style.pointerEvents = 'none';
+
+      // Then collapse container and iframe size after opacity transition
+      setTimeout(function() {
+        container.style.width = '64px';
+        container.style.height = '64px';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+      }, 300);
+
       iframe.contentWindow.postMessage({ action: 'close' }, '*');
     },
     toggle: function() {

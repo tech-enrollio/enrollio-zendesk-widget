@@ -6,25 +6,14 @@
   // Configuration
   const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app/widget'; // Widget iframe URL
 
-  // Create widget container - starts small (just FAB size)
-  const container = document.createElement('div');
-  container.id = 'enrollio-support-widget-container';
-  container.style.cssText = `
-    position: fixed;
-    bottom: 36px;
-    right: 24px;
-    z-index: 999999;
-    width: 64px;
-    height: 64px;
-    pointer-events: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  `;
-
-  // Create FAB button (in parent page, always visible)
+  // Create FAB button (in parent page, always visible) - positioned independently
   const fab = document.createElement('button');
   fab.id = 'enrollio-support-fab';
   fab.setAttribute('aria-label', 'Open Enrollio Support Widget');
   fab.style.cssText = `
+    position: fixed;
+    bottom: 36px;
+    right: 24px;
     width: 64px;
     height: 64px;
     border-radius: 50%;
@@ -37,7 +26,8 @@
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     padding: 0;
-    pointer-events: auto;
+    z-index: 999999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
   // Add Enrollio logo to FAB
@@ -47,21 +37,23 @@
   fabImg.style.cssText = 'width: 48px; height: 48px; border-radius: 50%;';
   fab.appendChild(fabImg);
 
-  // Create iframe - starts hidden with 0 dimensions
+  // Create iframe - positioned independently, starts with 0 dimensions
   const iframe = document.createElement('iframe');
   iframe.id = 'enrollio-support-widget-iframe';
   iframe.src = WIDGET_URL;
   iframe.style.cssText = `
+    position: fixed;
+    bottom: 36px;
+    right: 24px;
     border: none;
     width: 0;
     height: 0;
     background: transparent;
-    position: absolute;
-    bottom: 0;
-    right: 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease, width 0s 0.3s, height 0s 0.3s;
+    transition: opacity 0.3s ease;
+    z-index: 999998;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
   // Allow iframe to be interactive
@@ -76,12 +68,9 @@
     isOpen = true;
     fab.style.display = 'none';
 
-    // Expand container and iframe
-    container.style.width = '400px';
-    container.style.height = '600px';
+    // Expand iframe
     iframe.style.width = '400px';
     iframe.style.height = '600px';
-    iframe.style.transition = 'opacity 0.3s ease';
     iframe.style.opacity = '1';
     iframe.style.pointerEvents = 'auto';
 
@@ -94,14 +83,11 @@
       isOpen = false;
       fab.style.display = 'flex';
 
-      // Collapse iframe first (with transition)
+      // Collapse iframe (opacity first, then size)
       iframe.style.opacity = '0';
       iframe.style.pointerEvents = 'none';
 
-      // Then collapse container and iframe size after opacity transition
       setTimeout(function() {
-        container.style.width = '64px';
-        container.style.height = '64px';
         iframe.style.width = '0';
         iframe.style.height = '0';
       }, 300);
@@ -110,9 +96,8 @@
 
   // Append to body when DOM is ready
   function init() {
-    document.body.appendChild(container);
-    container.appendChild(fab);
-    container.appendChild(iframe);
+    document.body.appendChild(fab);
+    document.body.appendChild(iframe);
   }
 
   // Initialize when DOM is ready
@@ -128,12 +113,9 @@
       isOpen = true;
       fab.style.display = 'none';
 
-      // Expand container and iframe
-      container.style.width = '400px';
-      container.style.height = '600px';
+      // Expand iframe
       iframe.style.width = '400px';
       iframe.style.height = '600px';
-      iframe.style.transition = 'opacity 0.3s ease';
       iframe.style.opacity = '1';
       iframe.style.pointerEvents = 'auto';
 
@@ -143,14 +125,11 @@
       isOpen = false;
       fab.style.display = 'flex';
 
-      // Collapse iframe first (with transition)
+      // Collapse iframe (opacity first, then size)
       iframe.style.opacity = '0';
       iframe.style.pointerEvents = 'none';
 
-      // Then collapse container and iframe size after opacity transition
       setTimeout(function() {
-        container.style.width = '64px';
-        container.style.height = '64px';
         iframe.style.width = '0';
         iframe.style.height = '0';
       }, 300);

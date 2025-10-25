@@ -73,15 +73,14 @@
     container.id = 'enrollio-widget';
     container.style.cssText = `
       position: fixed;
-      bottom: ${CONFIG.position.bottom};
-      right: ${CONFIG.position.right};
+      bottom: -9999px;
+      right: -9999px;
       width: ${CONFIG.widgetSize.width}px;
       height: ${CONFIG.widgetSize.height}px;
       z-index: 2147483646;
       opacity: 0;
-      transform: translateY(20px) scale(0.95);
       pointer-events: none;
-      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
       border-radius: 12px;
       overflow: hidden;
@@ -139,10 +138,15 @@
     open() {
       this.isOpen = true;
 
-      // Show widget with animation
-      this.widget.style.opacity = '1';
-      this.widget.style.transform = 'translateY(0) scale(1)';
-      this.widget.style.pointerEvents = 'auto';
+      // Move widget into position and show with animation
+      this.widget.style.bottom = CONFIG.position.bottom;
+      this.widget.style.right = CONFIG.position.right;
+
+      // Use setTimeout to ensure position is set before animating
+      setTimeout(() => {
+        this.widget.style.opacity = '1';
+        this.widget.style.pointerEvents = 'auto';
+      }, 10);
 
       // Hide FAB
       this.fab.style.display = 'none';
@@ -156,8 +160,15 @@
 
       // Hide widget with animation
       this.widget.style.opacity = '0';
-      this.widget.style.transform = 'translateY(20px) scale(0.95)';
       this.widget.style.pointerEvents = 'none';
+
+      // Move widget off-screen after animation completes
+      setTimeout(() => {
+        if (!this.isOpen) {  // Only if still closed
+          this.widget.style.bottom = '-9999px';
+          this.widget.style.right = '-9999px';
+        }
+      }, 300);
 
       // Show FAB
       this.fab.style.display = 'flex';

@@ -6,15 +6,15 @@
   // Configuration
   const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app/widget'; // Widget iframe URL
 
-  // Create FAB container - minimal size (just enough for FAB button)
+  // Create FAB container - minimal size (FAB button + 5px)
   const fabContainer = document.createElement('div');
   fabContainer.id = 'enrollio-fab-container';
   fabContainer.style.cssText = `
     position: fixed;
     bottom: 36px;
     right: 24px;
-    width: 64px;
-    height: 64px;
+    width: 69px;
+    height: 69px;
     z-index: 999;
     pointer-events: none;
   `;

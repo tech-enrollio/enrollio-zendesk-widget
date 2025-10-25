@@ -24,11 +24,19 @@ const nextConfig = {
           },
           {
             key: 'Content-Type',
-            value: 'application/javascript',
+            value: 'application/javascript; charset=utf-8',
           },
           {
             key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
+            value: 'public, max-age=0, s-maxage=0, must-revalidate',
+          },
+          {
+            key: 'CDN-Cache-Control',
+            value: 'no-cache',
+          },
+          {
+            key: 'Vercel-CDN-Cache-Control',
+            value: 'no-cache',
           },
         ],
       },

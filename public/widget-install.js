@@ -1,5 +1,6 @@
 (function() {
   'use strict';
+  // Version: 2.0.0 - Off-screen positioning fix
 
   // Prevent multiple initializations
   if (window.EnrollioWidgetLoaded) return;

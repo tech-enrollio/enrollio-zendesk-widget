@@ -14,6 +14,7 @@
     bottom: 36px;
     right: 24px;
     z-index: 999999;
+    pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
@@ -34,6 +35,7 @@
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     padding: 0;
+    pointer-events: auto;
   `;
 
   // Add Enrollio logo to FAB

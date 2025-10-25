@@ -6,13 +6,15 @@
   // Configuration
   const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app/widget'; // Widget iframe URL
 
-  // Create FAB container
+  // Create FAB container - minimal size (just enough for FAB button)
   const fabContainer = document.createElement('div');
   fabContainer.id = 'enrollio-fab-container';
   fabContainer.style.cssText = `
     position: fixed;
     bottom: 36px;
     right: 24px;
+    width: 64px;
+    height: 64px;
     z-index: 999;
     pointer-events: none;
   `;
@@ -46,15 +48,18 @@
   fab.appendChild(fabImg);
   fabContainer.appendChild(fab);
 
-  // Create widget container
+  // Create widget container - completely separate from FAB
   const widgetContainer = document.createElement('div');
   widgetContainer.id = 'enrollio-widget-container';
   widgetContainer.style.cssText = `
     position: fixed;
     bottom: 36px;
     right: 24px;
+    width: 400px;
+    height: 600px;
     z-index: 999999;
     display: none;
+    pointer-events: none;
   `;
 
   // Create iframe
@@ -63,10 +68,11 @@
   iframe.src = WIDGET_URL;
   iframe.style.cssText = `
     border: none;
-    width: 400px;
-    height: 600px;
+    width: 100%;
+    height: 100%;
     background: transparent;
     display: block;
+    pointer-events: auto;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
@@ -82,7 +88,10 @@
   fab.addEventListener('click', function() {
     isOpen = true;
     fabContainer.style.display = 'none';
+
+    // Show widget container and enable pointer events
     widgetContainer.style.display = 'block';
+    widgetContainer.style.pointerEvents = 'auto';
 
     iframe.contentWindow.postMessage({ action: 'open' }, '*');
   });
@@ -92,7 +101,10 @@
     if (event.data && event.data.action === 'close') {
       isOpen = false;
       fabContainer.style.display = 'block';
+
+      // Hide widget container and disable pointer events
       widgetContainer.style.display = 'none';
+      widgetContainer.style.pointerEvents = 'none';
     }
   });
 
@@ -114,14 +126,20 @@
     open: function() {
       isOpen = true;
       fabContainer.style.display = 'none';
+
+      // Show widget container and enable pointer events
       widgetContainer.style.display = 'block';
+      widgetContainer.style.pointerEvents = 'auto';
 
       iframe.contentWindow.postMessage({ action: 'open' }, '*');
     },
     close: function() {
       isOpen = false;
       fabContainer.style.display = 'block';
+
+      // Hide widget container and disable pointer events
       widgetContainer.style.display = 'none';
+      widgetContainer.style.pointerEvents = 'none';
 
       iframe.contentWindow.postMessage({ action: 'close' }, '*');
     },

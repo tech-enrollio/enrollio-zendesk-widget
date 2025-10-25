@@ -7,6 +7,7 @@
   const WIDGET_URL = 'https://enrollio-zendesk-widget.vercel.app/widget'; // Widget iframe URL
 
   // Create FAB container - minimal size (FAB button + 5px)
+  // Container allows clicks to pass through everywhere except the button itself
   const fabContainer = document.createElement('div');
   fabContainer.id = 'enrollio-fab-container';
   fabContainer.style.cssText = `
@@ -16,7 +17,7 @@
     width: 69px;
     height: 69px;
     z-index: 999;
-    pointer-events: none;
+    pointer-events: none !important;
   `;
 
   // Create FAB button (in parent page, always visible)
@@ -36,7 +37,7 @@
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     padding: 0;
-    pointer-events: auto;
+    pointer-events: auto !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
@@ -49,6 +50,8 @@
   fabContainer.appendChild(fab);
 
   // Create widget container - completely separate from FAB
+  // When collapsed: clicks pass through (pointer-events: none)
+  // When opened: clicks captured (pointer-events: auto)
   const widgetContainer = document.createElement('div');
   widgetContainer.id = 'enrollio-widget-container';
   widgetContainer.style.cssText = `
@@ -59,7 +62,7 @@
     height: 600px;
     z-index: 999999;
     display: none;
-    pointer-events: none;
+    pointer-events: none !important;
     visibility: hidden;
   `;
 
@@ -73,7 +76,7 @@
     height: 100%;
     background: transparent;
     display: block;
-    pointer-events: auto;
+    pointer-events: auto !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
 
@@ -93,7 +96,7 @@
     // Show widget container and enable pointer events
     widgetContainer.style.display = 'block';
     widgetContainer.style.visibility = 'visible';
-    widgetContainer.style.pointerEvents = 'auto';
+    widgetContainer.style.setProperty('pointer-events', 'auto', 'important');
 
     iframe.contentWindow.postMessage({ action: 'open' }, '*');
   });
@@ -107,7 +110,7 @@
       // Hide widget container and disable pointer events
       widgetContainer.style.display = 'none';
       widgetContainer.style.visibility = 'hidden';
-      widgetContainer.style.pointerEvents = 'none';
+      widgetContainer.style.setProperty('pointer-events', 'none', 'important');
     }
   });
 
@@ -133,7 +136,7 @@
       // Show widget container and enable pointer events
       widgetContainer.style.display = 'block';
       widgetContainer.style.visibility = 'visible';
-      widgetContainer.style.pointerEvents = 'auto';
+      widgetContainer.style.setProperty('pointer-events', 'auto', 'important');
 
       iframe.contentWindow.postMessage({ action: 'open' }, '*');
     },
@@ -144,7 +147,7 @@
       // Hide widget container and disable pointer events
       widgetContainer.style.display = 'none';
       widgetContainer.style.visibility = 'hidden';
-      widgetContainer.style.pointerEvents = 'none';
+      widgetContainer.style.setProperty('pointer-events', 'none', 'important');
 
       iframe.contentWindow.postMessage({ action: 'close' }, '*');
     },

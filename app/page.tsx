@@ -1,5 +1,7 @@
 "use client"
 
+import EnrollioSupportWidget from "@/components/enrollio-support-widget"
+
 export default function Home() {
   return (
     <>
@@ -79,6 +81,18 @@ export default function Home() {
         >
           Test Button 3
         </button>
+      </div>
+
+      {/* Render widget directly for local testing */}
+      <div style={{
+        position: 'fixed',
+        bottom: '36px',
+        right: '24px',
+        width: '64px',
+        height: '64px',
+        zIndex: 999999
+      }}>
+        <EnrollioSupportWidget />
       </div>
     </>
   )

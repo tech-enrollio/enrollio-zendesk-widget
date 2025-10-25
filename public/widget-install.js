@@ -37,7 +37,7 @@
   fabImg.style.cssText = 'width: 48px; height: 48px; border-radius: 50%;';
   fab.appendChild(fabImg);
 
-  // Create iframe - positioned independently, starts with 0 dimensions
+  // Create iframe - positioned independently, starts hidden
   const iframe = document.createElement('iframe');
   iframe.id = 'enrollio-support-widget-iframe';
   iframe.src = WIDGET_URL;
@@ -46,12 +46,10 @@
     bottom: 36px;
     right: 24px;
     border: none;
-    width: 0;
-    height: 0;
+    width: 400px;
+    height: 600px;
     background: transparent;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    display: none;
     z-index: 999998;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   `;
@@ -68,11 +66,8 @@
     isOpen = true;
     fab.style.display = 'none';
 
-    // Expand iframe
-    iframe.style.width = '400px';
-    iframe.style.height = '600px';
-    iframe.style.opacity = '1';
-    iframe.style.pointerEvents = 'auto';
+    // Show iframe
+    iframe.style.display = 'block';
 
     iframe.contentWindow.postMessage({ action: 'open' }, '*');
   });
@@ -83,14 +78,8 @@
       isOpen = false;
       fab.style.display = 'flex';
 
-      // Collapse iframe (opacity first, then size)
-      iframe.style.opacity = '0';
-      iframe.style.pointerEvents = 'none';
-
-      setTimeout(function() {
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-      }, 300);
+      // Hide iframe
+      iframe.style.display = 'none';
     }
   });
 
@@ -113,11 +102,8 @@
       isOpen = true;
       fab.style.display = 'none';
 
-      // Expand iframe
-      iframe.style.width = '400px';
-      iframe.style.height = '600px';
-      iframe.style.opacity = '1';
-      iframe.style.pointerEvents = 'auto';
+      // Show iframe
+      iframe.style.display = 'block';
 
       iframe.contentWindow.postMessage({ action: 'open' }, '*');
     },
@@ -125,14 +111,8 @@
       isOpen = false;
       fab.style.display = 'flex';
 
-      // Collapse iframe (opacity first, then size)
-      iframe.style.opacity = '0';
-      iframe.style.pointerEvents = 'none';
-
-      setTimeout(function() {
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-      }, 300);
+      // Hide iframe
+      iframe.style.display = 'none';
 
       iframe.contentWindow.postMessage({ action: 'close' }, '*');
     },

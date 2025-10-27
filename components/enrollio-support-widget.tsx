@@ -648,7 +648,7 @@ export default function EnrollioSupportWidget() {
   }
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !ticketId) return
+    if (!message.trim() || !ticketId || !requesterId) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -670,6 +670,7 @@ export default function EnrollioSupportWidget() {
         body: JSON.stringify({
           ticketId: ticketId,
           message: messageToSend,
+          requesterId: requesterId, // Pass the actual user's requester ID
         }),
       })
 

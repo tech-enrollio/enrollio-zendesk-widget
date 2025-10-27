@@ -8,7 +8,7 @@ const ZENDESK_SUBDOMAIN = "enrollio-98596"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { ticketId, message } = body
+    const { ticketId, message, requesterId } = body
 
     if (!ticketId || !message) {
       return NextResponse.json({ error: "Ticket ID and message are required" }, { status: 400 })
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
         comment: {
           body: message,
           public: true,
+          author_id: requesterId, // Set the actual user as the author
         },
       },
     }

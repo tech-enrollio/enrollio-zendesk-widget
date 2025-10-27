@@ -563,9 +563,12 @@ export default function EnrollioSupportWidget() {
         const data = await response.json()
         const comments: ZendeskComment[] = data.comments || []
 
+        // Filter out internal notes - only show public comments
+        const publicComments = comments.filter((comment) => comment.public === true)
+
         // Convert Zendesk comments to messages
         // Compare author_id with requesterId to determine if it's from the user or agent
-        const formattedMessages: Message[] = comments.map((comment) => ({
+        const formattedMessages: Message[] = publicComments.map((comment) => ({
           id: comment.id.toString(),
           sender: comment.author_id === requesterId ? "user" : "agent",
           content: comment.body,

@@ -28,8 +28,10 @@ export async function POST(request: NextRequest) {
       ticket: {
         subject: `Chat from ${name}`,
         type: "task",
+        status: "new",
         comment: {
           body: message,
+          public: true,
         },
         requester: {
           name: name,

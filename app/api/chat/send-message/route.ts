@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
 
     const updateData = {
       ticket: {
+        status: "open",
         comment: {
           body: message,
           public: true,

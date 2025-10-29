@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
         subject: `Conversation with ${name}`,
         type: "task",
         status: "new",
+        via_id: 75, // native_messaging - makes ticket appear as "Via Messaging"
         comment: {
           body: message,
           public: true,

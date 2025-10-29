@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     const ticketData = {
       ticket: {
-        subject: `Chat from ${name}`,
+        subject: `Conversation with ${name}`,
         type: "task",
         status: "new",
         comment: {
